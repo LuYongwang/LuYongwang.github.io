@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/layui/2.6.8/css/layui.min.css" type="text/css"
+          rel="stylesheet"/>
+    <title>小说Txt分章工具</title>
+</head>
+<body>
+<blockquote class="layui-elem-quote">注意：仅供学习参考<span style="color:red">@L lulu</span></blockquote>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 2rem;">
+    <legend>文本拆章小工具</legend>
+</fieldset>
+<div class="layui-row">
+    <div class="layui-col-xs5" style="height: 100%;border-right: #0c0c0c solid 1px">
+        <!--        <blockquote class="layui-elem-quote">操作区</blockquote>-->
+        <div class="layui-form layui-col-xs11" style="margin-top: 0.5rem">
+            <div class="layui-form-item">
+                <div class="layui-upload-drag" style="margin-left: 18%" id="upload_txt">
+                    <i class="layui-icon"></i>
+                    <p>点击上传，或将文件拖拽到此处</p>
+                    <div id="uploadDemoView">
+                        <p id="prev"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">切割方式</label>
+                <div class="layui-input-inline">
+                    <select name="modules" lay-verify="required" lay-search="">
+                        <option value="">请选择</option>
+                        <option value="1">第xxx[章/回/节/篇]</option>
+                        <!--                        <option value="2">第xxx[章/回/节/篇] 节目名</option>-->
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">需要片头</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="switch" lay-skin="switch">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">片头内容</label>
+                <div class="layui-input-block">
+                    <textarea name="rule" placeholder="请输入内容：欢迎收听" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" οnsubmit="return false" class="layui-btn" lay-submit="" lay-filter="demo1">
+                        预览
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-xs7">
+        <blockquote class="layui-elem-quote">预览区
+            <button class="layui-btn layui-btn-sm" id="save_chapter">保存章节</button>
+        </blockquote>
+        <div>
+            <p>共<span style="color: red" id="count">-</span>章</p>
+        </div>
+        <div class="load">
+            <div class="layui-col-xs1"></div>
+            <div class="layui-col-xs10" id="load_text"
+                 style="width: 100%;height: 590px;display:block; overflow-y: scroll;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- You can also require other files to run in this process -->
+<script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/layui/2.6.8/layui.min.js"></script>
+<script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/FileSaver.js/2014-08-29/FileSaver.min.js"></script>
+<script>
+    String.prototype.fromBase64 = function () {
+        //base64 转字符串，反过来即可
+        let code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        let str = this, res = '', binaryStr = '';
+        var tail = 0;//如果有=号则处理
+        for (let i = 0, max = str.length; i < max; i++) {
+            if (str[i] == '=') {
+                tail++;
+            } else {
+                let char = str[i], index = code.indexOf(char);
+                //每个字符6位
+                let temp = index.toString(2);
+                binaryStr += new Array(7 - temp.length).join('0') + temp;
+            }
+        }
+        //如果有=号，则需要重新处理下字符串
+        binaryStr = binaryStr.substr(0, binaryStr.length - tail * 2);
+        //split
+        for (let i = 0, max = binaryStr.length; i < max; i += 8) {
+            let temp = binaryStr.substr(i, 8);
+            if (temp.length > 0) {
+                let index = parseInt(temp, 2);
+                let char = String.fromCodePoint(Math.abs(index));
+                res += char;
+            }
+        }
+        return res;
+    }
+
+    layui.use(['upload', 'element', 'layer'], function () {
+        const $ = layui.jquery
+            , upload = layui.upload
+            , form = layui.form
+            , layer = layui.layer;
+
+        let tmp_file_text = "";
+        let tmp_file_spilt_array = [];
+        let tmp_context_data = []
+        let tme_file_name = "小说";
+
+        $("#save_chapter").click(function () {
+            if (tmp_context_data.length == 0) {
+                layer.msg("请预览后查看")
+                return;
+            }
+            var zip = new JSZip();
+            // zip.folder("nested").file("hello.txt", "Hello World\n");
+
+            for (let item of tmp_context_data) {
+                //
+                // zip.file("hello.txt", "Hello World\n");
+                zip.file(item['name'] + ".txt", item['context'])
+            }
+            zip.generateAsync({type: "blob"}).then(function (content) {
+                // see FileSaver.js
+                saveAs(content, tme_file_name + ".zip");
+            });
+
+        })
+
+        function render_text(config) {
+            let context_html = "";
+            $("#count").text(tmp_file_spilt_array.length);
+            tmp_context_data = []
+            for (const idx in tmp_file_spilt_array) {
+                let start = config['switch'] === 'on';
+
+                let name = (idx == 0) ? "片头" : ("第" + idx + "章 " + (tmp_file_spilt_array[idx].split("\n")[0] + "").split("=").join(""))
+
+                let tmp_content_array = tmp_file_spilt_array[idx].split("\r\n").join("\n").split("\n");
+                tmp_content_array[0] = name;
+
+                let context = (start ? config['rule'] || "" : "") + tmp_content_array.join("\n");
+
+
+                context_html += `<div class='layui-row'>
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>${name}</legend>
+                        </fieldset>
+                        <p class="layui-textarea">${context}</p>
+                    </div>`;
+                tmp_context_data.push({
+                    "name": name.trim(),
+                    "context": context
+                })
+            }
+            $("#load_text").html(context_html)
+        }
+
+
+        let rexObj = {
+            "rule_1": /.*第+[零〇一二三四五六七八九十百千万a-zA-Z0-9]+[章节卷集部篇回]/,
+            // "rule_2": /.+第+[零〇一二三四五六七八九十百千万a-zA-Z0-9]+[章节卷集部篇回]\n/
+        }
+
+        // var data1 = form.val("formTest");
+        form.on('submit(demo1)', function (data) {
+            if (!tmp_file_text) {
+                layer.msg("请上传内容")
+                return false;
+            }
+            let config = data.field || {};
+
+            // 分词正则获取
+            let regrule = rexObj["rule_" + config['modules']]
+            if (!regrule) {
+                layer.msg("请选择规则")
+                return false;
+            }
+            tmp_file_spilt_array = tmp_file_text.split(regrule)
+            render_text(config)
+            return false;
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#upload_txt'
+            , accept: 'file'
+            , exts: 'text|txt'
+            , auto: false
+            , choose: function (obj) {
+                layer.msg('上传成功');
+                obj.preview(function (index, file, result) {
+                    console.log(file); //得到文件对象
+                    // tmp_file_text = result.replace("data:text/plain;base64,","").fromBase64();
+                    $("#prev").text("文件名：" + (file.name) + "大小:" + parseFloat((file.size) / 1024 / 1024).toFixed(2) + "MB")
+                    tme_file_name = file.name.split(".")[0] + "分章"
+                    var reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = function () {
+                        if (reader.result) {
+                            //显示文件内容
+                            tmp_file_text = reader.result;
+                            // console.log(tmp_file_text)
+                        }
+                    }
+                });
+
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

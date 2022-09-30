@@ -1,0 +1,8 @@
+https://blog.yongwang.lu/post/Elasticsearch1.html
+https://blog.yongwang.lu/tool/index.html
+https://blog.yongwang.lu/link/index.html
+https://blog.yongwang.lu/categories/index.html
+https://blog.yongwang.lu/tags/index.html
+https://blog.yongwang.lu/
+https://blog.yongwang.lu/tags/Elasticsearch/
+https://blog.yongwang.lu/categories/Elasticsearch/
