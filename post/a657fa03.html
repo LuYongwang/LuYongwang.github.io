@@ -1,0 +1,450 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Containerd ctr 和 crictl 客户端命令介绍与实战操作（nerdctl ） | L丶lulu‘s Blog</title><meta name="author" content="L丶lulu"><meta name="copyright" content="L丶lulu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="containerd"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://blog.yongwang.lu/post/a657fa03.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?2a2af082865b04778f6960717eb1510b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Containerd ctr 和 crictl 客户端命令介绍与实战操作（nerdctl ）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-02 13:05:21'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><style>@font-face{font-family:tzy;src:url(https://fastly.jsdelivr.net/gh/tzy13755126023/BLOG_SOURCE/font/ZhuZiAWan.woff2);font-display:swap}.gitcalendar,body{font-family:tzy!important}.categoryBar-list{max-height:400px}.clock-row{overflow:hidden;text-overflow:ellipsis}#page-header,#web_bg{-webkit-animation:imgblur 2s 1 ease-in-out;animation:imgblur 2s 1 ease-in-out}@keyframes imgblur{0%{filter:blur(5px)}100%{filter:blur(0)}}@-webkit-keyframes imgblur{0%{-webkit-filter:blur(5px)}100%{-webkit-filter:blur(0)}}.table-wrap img{margin:.6rem auto .1rem!important}.site-card-group img{margin:0 auto .1rem!important}.site-card-group .info a img{margin-right:10px!important}[data-theme=dark] .site-card-group .site-card .info .title{color:#f0f0f0!important}[data-theme=dark] .site-card-group .site-card .info .desc{color:rgba(255,255,255,.7)!important}.site-card-group .info .desc{margin-top:4px!important}figure.highlight pre .addition{color:#00bf03!important}</style><link rel="stylesheet" href="/css/universe.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="L丶lulu‘s Blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://containerd.io/img/logos/main-logo.png')"><nav id="nav"><span id="blog-info"><a href="/" title="L丶lulu‘s Blog"><span class="site-name">L丶lulu‘s Blog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Containerd ctr 和 crictl 客户端命令介绍与实战操作（nerdctl ）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-01-02T05:05:21.000Z" title="发表于 2023-01-02 13:05:21">2023-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-02T05:05:21.000Z" title="更新于 2023-01-02 13:05:21">2023-01-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/containerd/">containerd</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><blockquote>
+<p>作为接替Docker运行时的<a target="_blank" rel="noopener" href="https://containerd.io/">Containerd</a>在早在Kubernetes1.7时就能直接与Kubelet集成使用，只是大部分时候我们因熟悉Docker，在部署集群时采用了默认的dockershim。在<code>V1.24</code>起的版本的kubelet就彻底移除了<code>dockershim</code>，改为默认使用<code>Containerd</code>了，当然也可以使用 <code>cri-dockerd</code> 适配器来将 <code>Docker Engine</code> 与 Kubernetes 集成。可以参考官方文档。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/5da250511cf72797f2e2e992bd47240f-2.png" alt="图片"></p>
+<h2 id="二、Containerd-常见命令操作"><a href="#二、Containerd-常见命令操作" class="headerlink" title="二、Containerd 常见命令操作"></a>二、Containerd 常见命令操作</h2><blockquote>
+<p>更换Containerd后，以往我们常用的docker命令也不再使用，取而代之的分别是 <code>crictl</code> 和 <code>ctr</code> 两个命令客户端。</p>
+</blockquote>
+<ul>
+<li><p><code>crictl</code> 是遵循CRI接口规范的一个命令行工具，通常用它来检查和管理<code>kubelet</code>节点上的容器运行时和镜像。</p>
+</li>
+<li><p><code>ctr</code> 是 <code>containerd</code> 的一个客户端工具。</p>
+</li>
+<li><p><code>ctr -v</code> 输出的是 <code>containerd</code> 的版本，<code>crictl -v</code> 输出的是当前 k8s 的版本，从结果显而易见你可以认为 <code>crictl</code> 是用于 <code>k8s</code> 的。</p>
+</li>
+<li><p>一般来说你某个主机安装了 k8s 后，命令行才会有 crictl 命令。而 ctr 是跟 k8s 无关的，你主机安装了 containerd 服务后就可以操作 ctr 命令。</p>
+</li>
+</ul>
+<p>使用<code>crictl</code>命令之前，需要先配置<code>/etc/crictl.yaml</code>如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">runtime-endpoint: unix:///run/containerd/containerd.sockimage-endpoint: unix:///run/containerd/containerd.socktimeout: 10debug: false</span><br></pre></td></tr></table></figure>
+
+<p>也可以通过命令进行设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crictl config runtime-endpoint unix:///run/containerd/containerd.sockcrictl config image-endpoint unix:///run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>docker</th>
+<th>ctr（containerd）</th>
+<th>crictl（kubernetes）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查看运行的容器</td>
+<td>docker ps</td>
+<td>ctr task ls&#x2F;ctr container ls</td>
+<td>crictl ps</td>
+</tr>
+<tr>
+<td>查看镜像</td>
+<td>docker images</td>
+<td>ctr image ls</td>
+<td>crictl images</td>
+</tr>
+<tr>
+<td>查看容器日志</td>
+<td>docker logs</td>
+<td>无</td>
+<td>crictl logs</td>
+</tr>
+<tr>
+<td>查看容器数据信息</td>
+<td>docker inspect</td>
+<td>ctr container info</td>
+<td>crictl inspect</td>
+</tr>
+<tr>
+<td>查看容器资源</td>
+<td>docker stats</td>
+<td>无</td>
+<td>crictl stats</td>
+</tr>
+<tr>
+<td>启动&#x2F;关闭已有的容器</td>
+<td>docker start&#x2F;stop</td>
+<td>ctr task start&#x2F;kill</td>
+<td>crictl start&#x2F;stop</td>
+</tr>
+<tr>
+<td>运行一个新的容器</td>
+<td>docker run</td>
+<td>ctr run</td>
+<td>无（最小单元为pod）</td>
+</tr>
+<tr>
+<td>打标签</td>
+<td>docker tag</td>
+<td>ctr image tag</td>
+<td>无</td>
+</tr>
+<tr>
+<td>创建一个新的容器</td>
+<td>docker create</td>
+<td>ctr container create</td>
+<td>crictl create</td>
+</tr>
+<tr>
+<td>导入镜像</td>
+<td>docker load</td>
+<td>ctr image import</td>
+<td>无</td>
+</tr>
+<tr>
+<td>导出镜像</td>
+<td>docker save</td>
+<td>ctr image export</td>
+<td>无</td>
+</tr>
+<tr>
+<td>删除容器</td>
+<td>docker rm</td>
+<td>ctr container rm</td>
+<td>crictl rm</td>
+</tr>
+<tr>
+<td>删除镜像</td>
+<td>docker rmi</td>
+<td>ctr image rm</td>
+<td>crictl rmi</td>
+</tr>
+<tr>
+<td>拉取镜像</td>
+<td>docker pull</td>
+<td>ctr image pull</td>
+<td>ctictl pull</td>
+</tr>
+<tr>
+<td>推送镜像</td>
+<td>docker push</td>
+<td>ctr image push</td>
+<td>无</td>
+</tr>
+<tr>
+<td>登录或在容器内部执行命令</td>
+<td>docker exec</td>
+<td>无</td>
+<td>crictl exec</td>
+</tr>
+<tr>
+<td>清空不用的容器</td>
+<td>docker image prune</td>
+<td>无</td>
+<td>crictl rmi –prune</td>
+</tr>
+</tbody></table>
+<p>更多命令操作，可以直接在命令行输入命令查看帮助。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker --help</span><br><span class="line">ctr --help</span><br><span class="line">crictl --help</span><br></pre></td></tr></table></figure>
+
+<p>由于Containerd也有namespaces的概念，对于上层编排系统的支持，<code>ctr</code> 客户端 主要区分了3个命名空间分别是<code>k8s.io</code>、<code>moby</code>和<code>default</code>，以上我们用<code>crictl</code>操作的均在<code>k8s.io</code>命名空间，使用<code>ctr</code> 看镜像列表就需要加上-n参数。crictl是只有一个<code>k8s.io</code>命名空间，但是没有-n参数。</p>
+<blockquote>
+<p>【温馨提示】ctr images pull 拉取的镜像默认放在<code>default</code>，而crictl pull 和 kubelet 默认拉取的镜像都在k8s.io命名空间下。所以通过<code>ctr</code>导入镜像的时候特别注意一点，最好指定命名空间。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 注意-n不能放在命令最后面，下面几行查看的镜像是一样的</span><br><span class="line">ctr -n=k8s.io image ls</span><br><span class="line">ctr -n k8s.io image ls</span><br><span class="line"></span><br><span class="line"># crictl 没有-n参数，操作都在`k8s.io`命名空间下。</span><br><span class="line">crictl image ls</span><br><span class="line">crictl images</span><br><span class="line"># crictl image list = ctr -n=k8s.io image list</span><br><span class="line"># crictl image ls = ctr -n=k8s.io image ls</span><br><span class="line"># crictl images = ctr -n=k8s.io image list</span><br><span class="line"># crictl images = ctr -n=k8s.io image ls</span><br><span class="line"></span><br><span class="line"># 使用ctr命令指定命名空间导入镜像</span><br><span class="line">ctr -n=k8s.io image import dashboard.tar</span><br><span class="line"></span><br><span class="line">#查看镜像，可以看到可以查询到了</span><br><span class="line">crictl images</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、container-客户端工具-nerdctl"><a href="#三、container-客户端工具-nerdctl" class="headerlink" title="三、container 客户端工具 nerdctl"></a>三、container 客户端工具 nerdctl</h2><p>推荐使用nerdctl，使用效果与docker命令的语法一致<br>github下载链接：<a target="_blank" rel="noopener" href="https://github.com/containerd/nerdctl/releases">https://github.com/containerd/nerdctl/releases</a></p>
+<ul>
+<li><p>精简 (nerdctl-</p>
+<p>-linux-amd64.tar.gz): 只包含nerdctl</p>
+</li>
+<li><p>完整 (nerdctl-full-</p>
+<p>-linux-amd64.tar.gz): 包含 containerd, runc, and CNI等依赖</p>
+</li>
+</ul>
+<blockquote>
+<p><code>nerdctl</code> 的目标并不是单纯地复制 docker 的功能，它还实现了很多 docker 不具备的功能，例如延迟拉取镜像（lazy-pulling）、镜像加密（imgcrypt）等。具体看nerdctl。</p>
+</blockquote>
+<h3 id="1）安装-nerdctl（精简版）"><a href="#1）安装-nerdctl（精简版）" class="headerlink" title="1）安装 nerdctl（精简版）"></a>1）安装 nerdctl（精简版）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v0.22.2/nerdctl-0.22.2-linux-amd64.tar.gz</span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">tar -xf nerdctl-0.22.2-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="built_in">ln</span> -s /opt/k8s/nerdctl/nerdctl /usr/local/bin/nerdctl</span><br></pre></td></tr></table></figure>
+
+<h3 id="2）安装-nerdctl（完整版，这里不装）"><a href="#2）安装-nerdctl（完整版，这里不装）" class="headerlink" title="2）安装 nerdctl（完整版，这里不装）"></a>2）安装 nerdctl（完整版，这里不装）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containerd/nerdctl/releases/download/v0.22.2/nerdctl-full-0.22.2-linux-amd64.tar.gz</span><br><span class="line">tar -xf nerdctl-full-0.16.0-linux-amd64.tar.gz -C /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> /usr/local/lib/systemd/system/*.service /etc/systemd/system/</span><br></pre></td></tr></table></figure>
+
+<p>启动服务buildkit</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span>  buildkit containerd --now</span><br><span class="line">systemctl status buildkit containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）安装-buildkit-支持构建镜像"><a href="#3）安装-buildkit-支持构建镜像" class="headerlink" title="3）安装 buildkit 支持构建镜像"></a>3）安装 buildkit 支持构建镜像</h3><p>buildkit GitHub地址：<a target="_blank" rel="noopener" href="https://github.com/moby/buildkit">https://github.com/moby/buildkit</a></p>
+<blockquote>
+<p>使用<strong>精简版 nerdctl无法直接通过containerd构建镜像</strong>，需要与buildkit组全使用以实现镜像构建。当然你也可以安装上面的完整nerdctl；buildkit项目是Docker公司开源出来的一个构建工具包，支持OCI标准的镜像构建。它主要包含以下部分:</p>
+</blockquote>
+<ul>
+<li><p>服务端buildkitd，当前支持runc和containerd作为worker，默认是runc；</p>
+</li>
+<li><p>客户端buildctl，负责解析Dockerfile，并向服务端buildkitd发出构建请求。</p>
+</li>
+</ul>
+<p>buildkit是典型的<strong>C&#x2F;S架构</strong>，client和server可以不在一台服务器上。而nerdctl在构建镜像方面也可以作为buildkitd的客户端。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># https://github.com/moby/buildkit/releases</span></span><br><span class="line">wget https://github.com/moby/buildkit/releases/download/v0.10.4/buildkit-v0.10.4.linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">tar -xf buildkit-v0.10.4.linux-amd64.tar.gz  -C /usr/local/</span><br></pre></td></tr></table></figure>
+
+<p>配置buildkit的启动文件，可以从这里下载：<a target="_blank" rel="noopener" href="https://github.com/moby/buildkit/tree/master/examples/systemd">https://github.com/moby/buildkit/tree/master/examples/systemd</a><br>buildkit需要配置两个文件</p>
+<ul>
+<li><code>/usr/lib/systemd/system/buildkit.socket</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /usr/lib/systemd/system/buildkit.socket &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">[Unit]</span></span><br><span class="line"><span class="string">Description=BuildKit</span></span><br><span class="line"><span class="string">Documentation=https://github.com/moby/buildkit</span></span><br><span class="line"><span class="string">[Socket]</span></span><br><span class="line"><span class="string">ListenStream=%t/buildkit/buildkitd.sock</span></span><br><span class="line"><span class="string">SocketMode=0660</span></span><br><span class="line"><span class="string">[Install]</span></span><br><span class="line"><span class="string">WantedBy=sockets.target</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>/usr/lib/systemd/system/buildkit.service</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /usr/lib/systemd/system/buildkit.service &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">[Unit]</span></span><br><span class="line"><span class="string">Description=BuildKit</span></span><br><span class="line"><span class="string">Requires=buildkit.socket</span></span><br><span class="line"><span class="string">After=buildkit.socket</span></span><br><span class="line"><span class="string">Documentation=https://github.com/moby/buildkit</span></span><br><span class="line"><span class="string">[Service]</span></span><br><span class="line"><span class="string"># Replace runc builds with containerd builds  </span></span><br><span class="line"><span class="string">ExecStart=/usr/local/bin/buildkitd --addr fd://</span></span><br><span class="line"><span class="string">[Install]</span></span><br><span class="line"><span class="string">WantedBy=multi-user.target</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>启动buildkit</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl <span class="built_in">enable</span> buildkit --now</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、实战操作"><a href="#四、实战操作" class="headerlink" title="四、实战操作"></a>四、实战操作</h2><h3 id="1）修改containerd配置文件"><a href="#1）修改containerd配置文件" class="headerlink" title="1）修改containerd配置文件"></a>1）修改containerd配置文件</h3><p>可以参考我之前的文章：【云原生.大数据】镜像仓库Harbor对接MinIO对象存储</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">containerd config default &gt; /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p>配置如下：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry]</span></span><br><span class="line">      <span class="attr">config_path</span> = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">      <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.auths]</span></span><br><span class="line"></span><br><span class="line">      <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.configs]</span></span><br><span class="line">        <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.configs.&quot;myharbor-minio.com&quot;.tls]</span></span><br><span class="line">          <span class="attr">insecure_skip_verify</span> = <span class="literal">true</span>  <span class="comment">#跳过认证</span></span><br><span class="line">          <span class="attr">ca_file</span> = <span class="string">&quot;/etc/containerd/myharbor-minio.com/ca.crt&quot;</span></span><br><span class="line">        <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.configs.&quot;myharbor-minio.com&quot;.auth]</span></span><br><span class="line">          <span class="attr">username</span> = <span class="string">&quot;admin&quot;</span></span><br><span class="line">          <span class="attr">password</span> = <span class="string">&quot;Harbor12345&quot;</span></span><br><span class="line"></span><br><span class="line">      <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.headers]</span></span><br><span class="line"></span><br><span class="line">      <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.mirrors]</span></span><br><span class="line">        <span class="section">[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.mirrors.&quot;myharbor-minio.com&quot;]</span></span><br><span class="line">          <span class="attr">endpoint</span> = [<span class="string">&quot;https://myharbor-minio.com&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>重启containerd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#重新加载配置</span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line"><span class="comment">#重启containerd</span></span><br><span class="line">systemctl restart containerd</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：这个配置文件是给<code>crictl</code>和<code>kubelet</code>使用，<code>ctr</code>是不可以用这个配置文件的，ctr 不使用 CRI，因此它不读取plugins.”io.containerd.grpc.v1.cri”配置。</p>
+</blockquote>
+<h3 id="2）ctr-拉取推送镜像"><a href="#2）ctr-拉取推送镜像" class="headerlink" title="2）ctr 拉取推送镜像"></a>2）ctr 拉取推送镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 推送镜像到harbor</span></span><br><span class="line">ctr --namespace=k8s.io images push myharbor-minio.com/bigdata/minio:2022.8.22-debian-11-r0 --skip-verify --user admin:Harbor12345</span><br><span class="line"></span><br><span class="line"><span class="comment"># --namespace=k8s.io 指定命名空间，不是必须，根据环境而定</span></span><br><span class="line"><span class="comment"># --skip-verify 跳过认证</span></span><br><span class="line"><span class="comment"># --user 指定harbor用户名及密码</span></span><br><span class="line"></span><br><span class="line">ctr  images pull --user admin:Harbor12345  --tlscacert=/etc/containerd/myharbor-minio.com/ca.crt myharbor-minio.com/bigdata/minio:2022.8.22-debian-11-r0</span><br></pre></td></tr></table></figure>
+
+<p>不想-u user:password每次必须使用 ctr pull&#x2F;ctr push， 可以使用<code>nerdctl</code> 。</p>
+<h3 id="3）镜像构建"><a href="#3）镜像构建" class="headerlink" title="3）镜像构建"></a>3）镜像构建</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; Dockerfile &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">FROM nginx:alpine</span></span><br><span class="line"><span class="string">RUN echo &#x27;Hello Nerdctl From Containerd&#x27; &gt; /usr/share/nginx/html/index.html</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在文件所在目录执行镜像构建命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 不加-n指定命名空间，crictl看不到，kubelet也不能使用它，默认在default命名空间下</span></span><br><span class="line">nerdctl -n k8s.io build -t nginx:nerctl -f ./Dockerfile . </span><br><span class="line"><span class="comment">### 参数解释</span></span><br><span class="line"><span class="comment"># -t：指定镜像名称</span></span><br><span class="line"><span class="comment"># . ：当前目录Dockerfile</span></span><br><span class="line"><span class="comment"># -f：指定Dockerfile路径</span></span><br><span class="line"><span class="comment">#  --no-cache：不缓存</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4）打标签-tag"><a href="#4）打标签-tag" class="headerlink" title="4）打标签 tag"></a>4）打标签 tag</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># crictl没有tag命令，只能使用nerdctl和ctr，必须指定命名空间，要不然kubelet无法使用。</span></span><br><span class="line">ctr -n k8s.io i tag </span><br><span class="line">nerdctl -n k8s.io tag nginx:nerctl myharbor-minio.com/bigdata/nginx:nerctl</span><br><span class="line"><span class="comment"># ctr -n k8s.io tag nginx:nerctl myharbor-minio.com/bigdata/nginx:nerctl</span></span><br><span class="line"><span class="comment"># 查看镜像</span></span><br><span class="line">nerdctl  -n k8s.io  images myharbor-minio.com/bigdata/nginx:nerctl</span><br></pre></td></tr></table></figure>
+
+<h3 id="5）将镜像推送到-Harbor"><a href="#5）将镜像推送到-Harbor" class="headerlink" title="5）将镜像推送到 Harbor"></a>5）将镜像推送到 Harbor</h3><p>第一种情况：<code>http</code>方式，配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下两个哪个都可以</span></span><br><span class="line"><span class="comment"># mkdir -p /etc/docker/certs.d/myharbor-minio.com:443</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /etc/containerd/certs.d/myharbor-minio.com:443</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/containerd/certs.d/myharbor-minio.com\:443/hosts.toml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">server = &quot;https://docker.io&quot;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[host.&quot;http://myharbor-minio.com:80&quot;]</span></span><br><span class="line"><span class="string">  capabilities = [&quot;pull&quot;, &quot;resolve&quot;,&quot;push&quot;]</span></span><br><span class="line"><span class="string">  #skip_verify = true</span></span><br><span class="line"><span class="string">  #ca = &quot;ca.crt&quot;   #相对路径</span></span><br><span class="line"><span class="string">  #ca = &quot;/opt/auth/ca.crt&quot;  #绝对路径</span></span><br><span class="line"><span class="string">  #ca = [&quot;/opt/auth/ca.crt&quot;]</span></span><br><span class="line"><span class="string">  #ca = [&quot;ca.crt&quot;]</span></span><br><span class="line"><span class="string">  #client = [[&quot;/opt/auth/nginx.cclinux.cn.crt&quot;, &quot;/opt/auth/nginx.cclinux.cn.key&quot;]]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>第一种情况：<code>https</code>方式，配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下两个哪个都可以</span></span><br><span class="line"><span class="comment"># mkdir -p /etc/docker/certs.d/myharbor-minio.com:443</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /etc/containerd/certs.d/myharbor-minio.com:443</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/containerd/certs.d/myharbor-minio.com\:443/hosts.toml &lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">server = &quot;https://docker.io&quot;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[host.&quot;https://myharbor-minio.com:443&quot;]</span></span><br><span class="line"><span class="string">  capabilities = [&quot;pull&quot;, &quot;resolve&quot;,&quot;push&quot;]</span></span><br><span class="line"><span class="string">  skip_verify = true</span></span><br><span class="line"><span class="string">  #ca = &quot;ca.crt&quot;   #相对路径</span></span><br><span class="line"><span class="string">  #ca = &quot;/opt/auth/ca.crt&quot;  #绝对路径</span></span><br><span class="line"><span class="string">  #ca = [&quot;/opt/auth/ca.crt&quot;]</span></span><br><span class="line"><span class="string">  ca = [&quot;/etc/containerd/myharbor-minio.com/ca.crt&quot;]</span></span><br><span class="line"><span class="string">  #client = [[&quot;/opt/auth/nginx.cclinux.cn.crt&quot;, &quot;/opt/auth/nginx.cclinux.cn.key&quot;]]</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>通过 nerdctl 登录 harbor</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Harbor12345 | nerdctl login --username <span class="string">&quot;admin&quot;</span> --password-stdin  myharbor-minio.com:443</span><br><span class="line"></span><br><span class="line">$ nerdctl login --username <span class="string">&quot;admin&quot;</span> --password Harbor12345 myharbor-minio.com:443</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登出</span></span><br><span class="line">$ nerdctl <span class="built_in">logout</span></span><br></pre></td></tr></table></figure>
+
+
+<p>开始将镜像推送到harbor</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### 推送到Harbor</span></span><br><span class="line"><span class="comment"># --insecure-registry        skips verifying HTTPS certs, and allows falling back to plain HTTP</span></span><br><span class="line">nerdctl --insecure-registry --namespace=k8s.io push myharbor-minio.com/bigdata/nginx:nerctl</span><br><span class="line"><span class="comment"># ctr --namespace=k8s.io images push myharbor-minio.com/bigdata/nginx:nerctl --skip-verify --user admin:Harbor12345</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># --namespace=k8s.io 指定命名空间，跟-n一样，不是必须，根据环境而定</span></span><br><span class="line"><span class="comment"># --skip-verify 跳过认证</span></span><br><span class="line"><span class="comment"># --user 指定harbor用户名及密码</span></span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu">L丶lulu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu/post/a657fa03.html">https://blog.yongwang.lu/post/a657fa03.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.yongwang.lu" target="_blank">L丶lulu‘s Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/containerd/">containerd</a></div><div class="post_share"><div class="social-share" data-image="https://res.yongwang.lu/img/202303221849059.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/700b7316.html" title="Kubernetes（k8s）1、基本介绍和功能架构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Kubernetes（k8s）1、基本介绍和功能架构</div></div></a></div><div class="next-post pull-right"><a href="/post/964191ef.html" title="Containerd 入门到尝试"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/202303221849059.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Containerd 入门到尝试</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/964191ef.html" title="Containerd 入门到尝试"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/202303221849059.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-02</div><div class="title">Containerd 入门到尝试</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">L丶lulu</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LuYongwang"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/luYongwang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:yongwang.lu@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">孩子你很幼稚,真的很幼稚~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Containerd-%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4%E6%93%8D%E4%BD%9C"><span class="toc-text">二、Containerd 常见命令操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81container-%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7-nerdctl"><span class="toc-text">三、container 客户端工具 nerdctl</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E5%AE%89%E8%A3%85-nerdctl%EF%BC%88%E7%B2%BE%E7%AE%80%E7%89%88%EF%BC%89"><span class="toc-text">1）安装 nerdctl（精简版）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89%E5%AE%89%E8%A3%85-nerdctl%EF%BC%88%E5%AE%8C%E6%95%B4%E7%89%88%EF%BC%8C%E8%BF%99%E9%87%8C%E4%B8%8D%E8%A3%85%EF%BC%89"><span class="toc-text">2）安装 nerdctl（完整版，这里不装）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89%E5%AE%89%E8%A3%85-buildkit-%E6%94%AF%E6%8C%81%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F"><span class="toc-text">3）安装 buildkit 支持构建镜像</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E6%88%98%E6%93%8D%E4%BD%9C"><span class="toc-text">四、实战操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E4%BF%AE%E6%94%B9containerd%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">1）修改containerd配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89ctr-%E6%8B%89%E5%8F%96%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F"><span class="toc-text">2）ctr 拉取推送镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA"><span class="toc-text">3）镜像构建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89%E6%89%93%E6%A0%87%E7%AD%BE-tag"><span class="toc-text">4）打标签 tag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%EF%BC%89%E5%B0%86%E9%95%9C%E5%83%8F%E6%8E%A8%E9%80%81%E5%88%B0-Harbor"><span class="toc-text">5）将镜像推送到 Harbor</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）7、健康检查详解"/></a><div class="content"><a class="title" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解">Kubernetes（k8s）7、健康检查详解</a><time datetime="2023-01-05T08:40:00.000Z" title="发表于 2023-01-05 16:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）6、kube-proxy、Service详解"/></a><div class="content"><a class="title" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解">Kubernetes（k8s）6、kube-proxy、Service详解</a><time datetime="2023-01-05T07:40:00.000Z" title="发表于 2023-01-05 15:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）5、工作负载-Deployment"/></a><div class="content"><a class="title" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment">Kubernetes（k8s）5、工作负载-Deployment</a><time datetime="2023-01-05T06:40:00.000Z" title="发表于 2023-01-05 14:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）4、工作负载"/></a><div class="content"><a class="title" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载">Kubernetes（k8s）4、工作负载</a><time datetime="2023-01-05T05:40:00.000Z" title="发表于 2023-01-05 13:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）3、Pod详解"/></a><div class="content"><a class="title" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解">Kubernetes（k8s）3、Pod详解</a><time datetime="2023-01-05T04:40:00.000Z" title="发表于 2023-01-05 12:40:00">2023-01-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://containerd.io/img/logos/main-logo.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023  <i id="heartbeat" class="fa fas fa-heartbeat"></i> L丶lulu</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="2929951612" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="false" muted></div><canvas id="universe"></canvas><script defer src="/js/universe.js"/><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></body></html>

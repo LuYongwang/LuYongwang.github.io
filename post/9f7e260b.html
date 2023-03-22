@@ -1,0 +1,521 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Kubernetes（k8s）6、kube-proxy、Service详解 | L丶lulu‘s Blog</title><meta name="author" content="L丶lulu"><meta name="copyright" content="L丶lulu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="kubernetes1.26"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://blog.yongwang.lu/post/9f7e260b.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?2a2af082865b04778f6960717eb1510b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Kubernetes（k8s）6、kube-proxy、Service详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-05 15:40:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><style>@font-face{font-family:tzy;src:url(https://fastly.jsdelivr.net/gh/tzy13755126023/BLOG_SOURCE/font/ZhuZiAWan.woff2);font-display:swap}.gitcalendar,body{font-family:tzy!important}.categoryBar-list{max-height:400px}.clock-row{overflow:hidden;text-overflow:ellipsis}#page-header,#web_bg{-webkit-animation:imgblur 2s 1 ease-in-out;animation:imgblur 2s 1 ease-in-out}@keyframes imgblur{0%{filter:blur(5px)}100%{filter:blur(0)}}@-webkit-keyframes imgblur{0%{-webkit-filter:blur(5px)}100%{-webkit-filter:blur(0)}}.table-wrap img{margin:.6rem auto .1rem!important}.site-card-group img{margin:0 auto .1rem!important}.site-card-group .info a img{margin-right:10px!important}[data-theme=dark] .site-card-group .site-card .info .title{color:#f0f0f0!important}[data-theme=dark] .site-card-group .site-card .info .desc{color:rgba(255,255,255,.7)!important}.site-card-group .info .desc{margin-top:4px!important}figure.highlight pre .addition{color:#00bf03!important}</style><link rel="stylesheet" href="/css/universe.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="L丶lulu‘s Blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://kubernetes.io/images/nav_logo2.svg')"><nav id="nav"><span id="blog-info"><a href="/" title="L丶lulu‘s Blog"><span class="site-name">L丶lulu‘s Blog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Kubernetes（k8s）6、kube-proxy、Service详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-01-05T07:40:00.000Z" title="发表于 2023-01-05 15:40:00">2023-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-05T07:40:00.000Z" title="更新于 2023-01-05 15:40:00">2023-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/kubernetes/">kubernetes</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="一、kube-proxy简介"><a href="#一、kube-proxy简介" class="headerlink" title="一、kube-proxy简介"></a>一、kube-proxy简介</h2><blockquote>
+<p><strong>kube-proxy负责为Service提供cluster内部的服务发现和负载均衡</strong>，它运行在每个Node计算节点上，负责Pod网络代理, 它会定时从etcd服务获取到service信息来做相应的策略，维护网络规则和四层负载均衡工作。在K8s集群中微服务的负载均衡是由Kube-proxy实现的，它是K8s集群内部的负载均衡器，也是一个分布式代理服务器，在K8s的每个节点上都有一个，这一设计体现了它的伸缩性优势，需要访问服务的节点越多，提供负载均衡能力的Kube-proxy就越多，高可用节点也随之增多。</p>
+</blockquote>
+<blockquote>
+<p><strong>service是一组pod的服务抽象，相当于一组pod的LB</strong>，负责将请求分发给对应的pod。service会为这个LB提供一个IP，一般称为cluster IP。<strong>kube-proxy的作用主要是负责service的实现</strong>，具体来说，就是实现了内部从pod到service和外部的从node port向service的访问。</p>
+</blockquote>
+<p>简单来说:</p>
+<ul>
+<li><p>kube-proxy其实就是管理service的访问入口，包括集群内Pod到Service的访问和集群外访问service。</p>
+</li>
+<li><p>kube-proxy管理sevice的Endpoints，该service对外暴露一个Virtual IP，也成为Cluster IP, 集群内通过访问这个Cluster IP:Port就能访问到集群内对应的serivce下的Pod。</p>
+</li>
+<li><p>service是通过Selector选择的一组Pods的服务抽象，其实就是一个微服务，提供了服务的LB和反向代理的能力，而kube-proxy的主要作用就是负责service的实现。</p>
+</li>
+<li><p>service另外一个重要作用是，一个服务后端的Pods可能会随着生存灭亡而发生IP的改变，service的出现，给服务提供了一个固定的IP，而无视后端Endpoint的变化。</p>
+</li>
+</ul>
+<h2 id="二、Service-简介"><a href="#二、Service-简介" class="headerlink" title="二、Service 简介"></a>二、Service 简介</h2><blockquote>
+<p>Kubernetes Service定义了这样一种抽象： Service是一种可以访问 Pod逻辑分组的策略， Service通常是通过 Label Selector访问 Pod组。</p>
+</blockquote>
+<blockquote>
+<p>Service能够提供负载均衡的能力，但是在使用上有以下限制：<strong>只提供 4 层负载均衡能力</strong>，而没有 7 层功能，但有时我们可能需要更多的匹配规则来转发请求，这点上 4 层负载均衡是不支持的。</p>
+</blockquote>
+<h2 id="三、Service-类型"><a href="#三、Service-类型" class="headerlink" title="三、Service 类型"></a>三、Service 类型</h2><p>Service在 K8s中有以下四种类型：</p>
+<h3 id="1）ClusterIp（集群内部使用）"><a href="#1）ClusterIp（集群内部使用）" class="headerlink" title="1）ClusterIp（集群内部使用）"></a>1）ClusterIp（集群内部使用）</h3><blockquote>
+<p><strong>默认类型</strong>，自动分配一个仅Cluster内部可以访问的虚拟IP（VIP）。</p>
+</blockquote>
+<h3 id="2）NodePort（对外暴露应用）"><a href="#2）NodePort（对外暴露应用）" class="headerlink" title="2）NodePort（对外暴露应用）"></a>2）NodePort（对外暴露应用）</h3><blockquote>
+<p>在ClusterIP基础上为Service在每台机器上绑定一个端口，这样就可以通过NodeIP:NodePort访问来访问该服务。<br>端口范围：30000~32767</p>
+</blockquote>
+<h3 id="3）LoadBalancer（对外暴露应用，适用于公有云）"><a href="#3）LoadBalancer（对外暴露应用，适用于公有云）" class="headerlink" title="3）LoadBalancer（对外暴露应用，适用于公有云）"></a>3）LoadBalancer（对外暴露应用，适用于公有云）</h3><blockquote>
+<p>在NodePort的基础上，借助Cloud Provider创建一个外部负载均衡器，并将请求转发到NodePort。</p>
+</blockquote>
+<h3 id="4）ExternalName"><a href="#4）ExternalName" class="headerlink" title="4）ExternalName"></a>4）ExternalName</h3><blockquote>
+<p>创建一个dns别名指到service name上，主要是防止service name发生变化，要配合dns插件使用。通过返回 CNAME 和它的值，可以将服务映射到 externalName 字段的内容。这只有 Kubernetes 1.7或更高版本的kube-dns才支持（<strong>我这里是Kubernetes 1.22.1版本</strong>）。</p>
+</blockquote>
+<h2 id="四、Service-工作流程"><a href="#四、Service-工作流程" class="headerlink" title="四、Service 工作流程"></a>四、Service 工作流程</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322225854.png" alt="Service 工作流程"></p>
+<ol>
+<li><p>客户端访问节点时通过 iptables实现的</p>
+</li>
+<li><p>iptables规则是通过 kube-proxy写入的</p>
+</li>
+<li><p>apiserver通过监控 kube-proxy去进行对服务和端点的监控</p>
+</li>
+<li><p>kube-proxy通过 pod的标签（ lables）去判断这个断点信息是否写入到 Endpoints里</p>
+</li>
+</ol>
+<h2 id="五、Endpoints简介"><a href="#五、Endpoints简介" class="headerlink" title="五、Endpoints简介"></a>五、Endpoints简介</h2><blockquote>
+<p>endpoint是k8s集群中的一个资源对象，存储在etcd中，<strong>用来记录一个service对应的所有pod的访问地址</strong>。service配置selector，endpoint controller才会自动创建对应的endpoint对象；否则，不会生成endpoint对象。</p>
+</blockquote>
+<blockquote>
+<p>【例如】k8s集群中创建一个名为hello的service，就会生成一个同名的endpoint对象，ENDPOINTS就是service关联的pod的ip地址和端口。</p>
+</blockquote>
+<h3 id="1）工作流程"><a href="#1）工作流程" class="headerlink" title="1）工作流程"></a>1）工作流程</h3><blockquote>
+<p><strong>一个 Service 由一组 backend Pod 组成。这些 Pod 通过 endpoints 暴露出来</strong>。 Service Selector 将持续评估，结果被 POST 到一个名称为 Service-hello 的 Endpoint 对象上。 当 Pod 终止后，它会自动从 Endpoint 中移除，新的能够匹配上 Service Selector 的 Pod 将自动地被添加到 Endpoint 中。 检查该 Endpoint，注意到 IP 地址与创建的 Pod 是相同的。现在，能够从集群中任意节点上使用 curl 命令请求 hello Service <CLUSTER-IP>:<PORT> 。</p>
+</blockquote>
+<h3 id="2）示例"><a href="#2）示例" class="headerlink" title="2）示例"></a>2）示例</h3><p>1、deployment-hello.yaml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt; deployment-hello.yaml</span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: hello</span><br><span class="line">spec:</span><br><span class="line">  replicas: 3</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">     run: hello</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        run: hello</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: nginx</span><br><span class="line">        image: nginx:1.17.1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>2、service-hello.yaml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt; service-hello.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: service-hello</span><br><span class="line">  labels:</span><br><span class="line">  name: service-hello</span><br><span class="line">spec:</span><br><span class="line">  type: NodePort      #这里代表是NodePort类型的,另外还有ingress,LoadBalancer</span><br><span class="line">  ports:</span><br><span class="line">  - port: 80          </span><br><span class="line">    targetPort: 8080</span><br><span class="line">    protocol: TCP</span><br><span class="line">    nodePort: 31111   # 所有的节点都会开放此端口30000--32767，此端口供外部调用。</span><br><span class="line">  selector:</span><br><span class="line">    run: hello</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>3、查看验证</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f deployment-hello.yaml</span><br><span class="line">$ kubectl apply -f service-hello.yaml</span><br><span class="line"># 查看pod，如果本地没有镜像，可能等待的时候比较长，一定要等到所有pod都在运行中才行。</span><br><span class="line">$ kubectl get pod -o wide|grep hello-*</span><br><span class="line"># 查看service</span><br><span class="line">$ kubectl get service service-hello -o wide</span><br><span class="line"># 查看service详情</span><br><span class="line">$ kubectl describe service service-hello</span><br><span class="line"># 查看pointer</span><br><span class="line">$ kubectl get endpoints service-hello</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、Service-Endpoints与Pod的关系"><a href="#六、Service-Endpoints与Pod的关系" class="headerlink" title="六、Service, Endpoints与Pod的关系"></a>六、Service, Endpoints与Pod的关系</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230158.png" alt="Service, Endpoints与Pod的关系"></p>
+<blockquote>
+<p>Kube-proxy进程获取每个Service的Endpoints,实现Service的负载均衡功能。</p>
+</blockquote>
+<p>Service的负载均衡转发规则<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230057.png" alt="Service的负载均衡转发规则 "></p>
+<blockquote>
+<p>访问Service的请求，不论是Cluster IP+TargetPort的方式；还是用Node节点IP+NodePort的方式，都被Node节点的Iptables规则重定向到Kube-proxy监听Service服务代理端口。kube-proxy接收到Service的访问请求后，根据负载策略，转发到后端的Pod。</p>
+</blockquote>
+<h2 id="七、Service的资源清单文件详解"><a href="#七、Service的资源清单文件详解" class="headerlink" title="七、Service的资源清单文件详解"></a>七、Service的资源清单文件详解</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">#元数据</span><br><span class="line">  name: string</span><br><span class="line">  #Service名称</span><br><span class="line">  namespace: string</span><br><span class="line">  #命名空间，不指定时默认为default命名空间</span><br><span class="line">  labels:</span><br><span class="line">  #自定义标签属性列表     </span><br><span class="line">    - name: string</span><br><span class="line">  annotations:</span><br><span class="line">  #自定义注解属性列表    </span><br><span class="line">    - name: string</span><br><span class="line">spec:</span><br><span class="line">#详细描述    </span><br><span class="line">  selector: []</span><br><span class="line">  #这里选择器一定要选择容器的标签，也就是pod的标签</span><br><span class="line">  #selector:</span><br><span class="line">  #  app: web</span><br><span class="line">  #Label Selector配置，选择具有指定label标签的pod作为管理范围</span><br><span class="line">  type: string</span><br><span class="line">  #service的类型，指定service的访问方式，默认ClusterIP</span><br><span class="line">  #ClusterIP：虚拟的服务ip地址，用于k8s集群内部的pod访问，在Node上kube-porxy通过设置的iptables规则进行转发</span><br><span class="line">  #NodePort：使用宿主机端口，能够访问各Node的外部客户端通过Node的IP和端口就能访问服务器</span><br><span class="line">  #LoadBalancer：使用外部负载均衡器完成到服务器的负载分发，</span><br><span class="line">  #需要在spec.status.loadBalancer字段指定外部负载均衡服务器的IP，并同时定义nodePort和clusterIP用于公有云环境。</span><br><span class="line">  clusterIP: string</span><br><span class="line">  #虚拟服务IP地址，当type=ClusterIP时，如不指定，则系统会自动进行分配，也可以手动指定。当type=loadBalancer，需要指定</span><br><span class="line">  sessionAffinity: string</span><br><span class="line">  #是否支持session，可选值为ClietIP，默认值为空</span><br><span class="line">  #ClientIP表示将同一个客户端(根据客户端IP地址决定)的访问请求都转发到同一个后端Pod</span><br><span class="line">  ports:</span><br><span class="line">  #service需要暴露的端口列表    </span><br><span class="line">  - name: string</span><br><span class="line">    #端口名称</span><br><span class="line">    protocol: string</span><br><span class="line">    #端口协议，支持TCP或UDP，默认TCP</span><br><span class="line">     port: int</span><br><span class="line">    #服务监听的端口号</span><br><span class="line">     targetPort: int</span><br><span class="line">    #需要转发到后端的端口号</span><br><span class="line">     nodePort: int</span><br><span class="line">    #当type=NodePort时，指定映射到物理机的端口号</span><br><span class="line">  status:</span><br><span class="line">  #当type=LoadBalancer时，设置外部负载均衡的地址，用于公有云环境    </span><br><span class="line">    loadBalancer:</span><br><span class="line">    #外部负载均衡器    </span><br><span class="line">      ingress:</span><br><span class="line">      #外部负载均衡器 </span><br><span class="line">      ip: string</span><br><span class="line">      #外部负载均衡器的IP地址</span><br><span class="line">      hostname: string</span><br><span class="line">     #外部负载均衡器的机主机</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、kubernetes中的四种port"><a href="#八、kubernetes中的四种port" class="headerlink" title="八、kubernetes中的四种port"></a>八、kubernetes中的四种port</h2><h3 id="1）nodePort"><a href="#1）nodePort" class="headerlink" title="1）nodePort"></a>1）nodePort</h3><blockquote>
+<p><strong>nodePort是外部访问k8s集群中service的端口</strong>，通过nodeIP: nodePort可以从外部访问到某个service。</p>
+</blockquote>
+<h3 id="2）port"><a href="#2）port" class="headerlink" title="2）port"></a>2）port</h3><blockquote>
+<p><strong>port是k8s集群内部访问service的端口</strong>，即通过clusterIP: port可以访问到某个service。</p>
+</blockquote>
+<h3 id="3）targetPort"><a href="#3）targetPort" class="headerlink" title="3）targetPort"></a>3）targetPort</h3><blockquote>
+<p><strong>targetPort是pod的端口</strong>，从port和nodePort来的流量经过kube-proxy流入到后端pod的targetPort上，最后进入容器。</p>
+</blockquote>
+<h3 id="4）containerPort"><a href="#4）containerPort" class="headerlink" title="4）containerPort"></a>4）containerPort</h3><blockquote>
+<p><strong>containerPort是pod内部容器的端口</strong>，targetPort映射到containerPort。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/202303221413828.png" alt="图片"></p>
+<h2 id="九、kubernetes服务发现"><a href="#九、kubernetes服务发现" class="headerlink" title="九、kubernetes服务发现"></a>九、kubernetes服务发现</h2><blockquote>
+<p>Kubernetes提供了两种方式进行服务发现, 即<strong>环境变量和DNS</strong>, 简单说明如下:</p>
+</blockquote>
+<h3 id="1）环境变量"><a href="#1）环境变量" class="headerlink" title="1）环境变量"></a>1）环境变量</h3><blockquote>
+<p>当你创建一个Pod的时候，kubelet会在该Pod中注入集群内所有Service的相关环境变量。</p>
+</blockquote>
+<blockquote>
+<p>【注意】要想一个Pod中注入某个Service的环境变量，则<strong>必须Service要比该Pod先创建</strong>。这一点，几乎使得这种方式进行服务发现不可用。比如，一个ServiceName为redis-master的Service，对应的ClusterIP:Port为172.16.50.11:6379，则其对应的环境变量为:</p>
+</blockquote>
+<blockquote>
+<p>REDIS_MASTER_SERVICE_HOST&#x3D;172.16.50.11<br>REDIS_MASTER_SERVICE_PORT&#x3D;6379<br>REDIS_MASTER_PORT&#x3D;tcp:&#x2F;&#x2F;172.16.50.11:6379<br>REDIS_MASTER_PORT_6379_TCP&#x3D;tcp:&#x2F;&#x2F;172.16.50.11:6379<br>REDIS_MASTER_PORT_6379_TCP_PROTO&#x3D;tcp<br>REDIS_MASTER_PORT_6379_TCP_PORT&#x3D;6379<br>REDIS_MASTER_PORT_6379_TCP_ADDR&#x3D;172.16.50.11</p>
+</blockquote>
+<h3 id="2-DNS"><a href="#2-DNS" class="headerlink" title="2) DNS"></a>2) DNS</h3><blockquote>
+<p>这是k8s官方强烈推荐的方式!!! 可以通过cluster add-on方式轻松的创建KubeDNS来对集群内的Service进行服务发现。</p>
+</blockquote>
+<h2 id="十、Service代理模式"><a href="#十、Service代理模式" class="headerlink" title="十、Service代理模式"></a>十、Service代理模式</h2><blockquote>
+<p>k8s群集中的每个节点都运行一个kube-proxy的组件，kube-proxy其实是一个代理层负责实现service。</p>
+</blockquote>
+<blockquote>
+<p><strong>Kubernetes v1.2之前默认是userspace，v1.2之后默认是iptables模式</strong>，iptables模式性能和可靠性更好，但是iptables模式依赖健康检查，在没有健康检查的情况下如果一个pod不响应，iptables模式不会切换另一个pod上。</p>
+</blockquote>
+<h3 id="1）userspace模式"><a href="#1）userspace模式" class="headerlink" title="1）userspace模式"></a>1）userspace模式</h3><blockquote>
+<p>客户端访问ServiceIP(clusterIP)请求会先从用户空间到内核中的iptables，然后回到用户空间kube-proxy，kube-proxy负责代理工作。</p>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<p>可见，userspace这种mode最大的问题是，service的请求会先从用户空间进入内核iptables，然后再回到用户空间，由kube-proxy完成后端Endpoints的选择和代理工作，这样流量从用户空间进出内核带来的性能损耗是不可接受的。这也是k8s v1.0及之前版本中对kube-proxy质疑最大的一点，因此社区就开始研究iptables mode。</p>
+</blockquote>
+<p>详细工作流程：</p>
+<blockquote>
+<p>userspace这种模式下，kube-proxy 持续监听 Service 以及 Endpoints 对象的变化；对每个 Service，它都为其在本地节点开放一个端口，作为其服务代理端口；发往该端口的请求会采用一定的策略转发给与该服务对应的后端 Pod 实体。kube-proxy 同时会在本地节点设置 iptables 规则，配置一个 Virtual IP，把发往 Virtual IP 的请求重定向到与该 Virtual IP 对应的服务代理端口上。其工作流程大体如下:</p>
+</blockquote>
+<blockquote>
+<p>【分析】该模式请求在到达 iptables 进行处理时就会进入内核，而 kube-proxy 监听则是在用户态, 请求就形成了从用户态到内核态再返回到用户态的传递过程, 一定程度降低了服务性能。</p>
+</blockquote>
+<h3 id="2）iptables模式（默认模式）"><a href="#2）iptables模式（默认模式）" class="headerlink" title="2）iptables模式（默认模式）"></a>2）iptables模式（默认模式）</h3><blockquote>
+<p>该模式完全利用内核iptables来实现service的代理和LB, 这是K8s在<strong>v1.2及之后版本默认模式</strong>. 工作原理如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322225854.png" alt="iptables模式"></p>
+<blockquote>
+<p><strong>iptables mode因为使用iptable NAT来完成转发，也存在不可忽视的性能损耗</strong>。另外，如果集群中存在上万的Service&#x2F;Endpoint，那么Node上的iptables rules将会非常庞大，性能还会再打折扣。这也导致目前大部分企业用k8s上生产时，都不会直接用kube-proxy作为服务代理，而是通过自己开发或者通过Ingress Controller来集成HAProxy, Nginx来代替kube-proxy。</p>
+</blockquote>
+<p>详细工作流程：</p>
+<blockquote>
+<p>iptables 模式与 userspace 相同，kube-proxy 持续监听 Service 以及 Endpoints 对象的变化；但它并不在本地节点开启反向代理服务，而是把反向代理全部交给 iptables 来实现；即 iptables 直接将对 VIP 的请求转发给后端 Pod，通过 iptables 设置转发策略。其工作流程大体如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230525.png" alt="iptables-详细工作流程"></p>
+<blockquote>
+<p>【分析】 该模式相比 userspace 模式，克服了请求在用户态-内核态反复传递的问题，性能上有所提升，但使用 iptables NAT 来完成转发，存在不可忽视的性能损耗，而且在大规模场景下，iptables 规则的条目会十分巨大，性能上还要再打折扣。</p>
+</blockquote>
+<p>示例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF &gt; mysql-service.yaml</span></span><br><span class="line"><span class="string">apiVersion: v1</span></span><br><span class="line"><span class="string">kind: Service</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  labels:</span></span><br><span class="line"><span class="string">    name: mysql</span></span><br><span class="line"><span class="string">    role: service</span></span><br><span class="line"><span class="string">  name: mysql-service</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  ports:</span></span><br><span class="line"><span class="string">    - port: 3306</span></span><br><span class="line"><span class="string">      targetPort: 3306</span></span><br><span class="line"><span class="string">      nodePort: 30964</span></span><br><span class="line"><span class="string">  type: NodePort</span></span><br><span class="line"><span class="string">  selector:</span></span><br><span class="line"><span class="string">    mysql-service: &quot;true&quot;</span></span><br><span class="line"><span class="string">    name: mysql</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line">$ kubectl apply -f mysql-service.yaml</span><br><span class="line">$ kubectl get svc</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）ipvs模型"><a href="#3）ipvs模型" class="headerlink" title="3）ipvs模型"></a>3）ipvs模型</h3><blockquote>
+<p>在kubernetes 1.8以上的版本中，对于kube-proxy组件增加了除iptables模式和用户模式之外还支持ipvs模式。<strong>kube-proxy ipvs 是基于 NAT 实现的</strong>，通过ipvs的NAT模式，对访问k8s service的请求进行虚IP到POD IP的转发。当创建一个 service 后，kubernetes 会在每个节点上创建一个网卡，同时帮你将 Service IP(VIP) 绑定上，此时相当于每个 Node 都是一个 ds，而其他任何 Node 上的 Pod，甚至是宿主机服务(比如 kube-apiserver 的 6443)都可能成为 rs；</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230705.png" alt="ipvs-service模型"></p>
+<p>详细工作流程：</p>
+<blockquote>
+<p>与iptables、userspace 模式一样，kube-proxy 依然监听Service以及Endpoints对象的变化, 不过它并不创建反向代理, 也不创建大量的 iptables 规则, 而是通过netlink 创建ipvs规则，并使用k8s Service与Endpoints信息，对所在节点的ipvs规则进行定期同步; netlink 与 iptables 底层都是基于 netfilter 钩子，但是 netlink 由于采用了 hash table 而且直接工作在内核态，在性能上比 iptables 更优。其工作流程大体如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230748.png" alt="ipvs工作流程"></p>
+<blockquote>
+<p>【分析】ipvs 是目前 kube-proxy 所支持的最新代理模式，相比使用 iptables，使用 ipvs 具有更高的性能。</p>
+</blockquote>
+<hr>
+<h3 id="4）kube-proxy配置-ipvs模式（所有节点）"><a href="#4）kube-proxy配置-ipvs模式（所有节点）" class="headerlink" title="4）kube-proxy配置 ipvs模式（所有节点）"></a>4）kube-proxy配置 ipvs模式（所有节点）</h3><p>1、加载ip_vs相关内核模块</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ modprobe -- ip_vs</span><br><span class="line">$ modprobe -- ip_vs_sh</span><br><span class="line">$ modprobe -- ip_vs_rr</span><br><span class="line">$ modprobe -- ip_vs_wrr</span><br><span class="line">$ modprobe -- nf_conntrack_ipv4</span><br></pre></td></tr></table></figure>
+
+<p>所有节点验证开启了ipvs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ lsmod |grep ip_vs</span><br></pre></td></tr></table></figure>
+
+<p>2、安装ipvsadm工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install ipset ipvsadm -y</span><br></pre></td></tr></table></figure>
+
+<p>3、编辑kube-proxy配置文件，mode修改成ipvs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl edit  configmap -n kube-system  kube-proxy</span><br></pre></td></tr></table></figure>
+
+<p>4、重启kube-proxy<br>先查看之前的kube-proxy</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy</span><br></pre></td></tr></table></figure>
+
+<p>删掉上面三个kube-proxy，重新拉起新的服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy |awk <span class="string">&#x27;&#123;system(&quot;kubectl delete pod &quot;$1&quot; -n kube-system&quot;)&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>再查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">title: Kubernetes（k8s）kube-proxy、Service详解</span><br><span class="line">abbrlink: 5475e8a5</span><br><span class="line">tags: kubernetes</span><br><span class="line">categories: kubernetes</span><br><span class="line">keywords: k8s</span><br><span class="line">description: kubernetes1.26</span><br><span class="line">top_img: &#x27;https://kubernetes.io/images/nav_logo2.svg&#x27;</span><br><span class="line">cover: &#x27;https://res.yongwang.lu/img/k8s_card.png&#x27;</span><br><span class="line">date: 2023-03-21 21:40:00</span><br><span class="line">updated: 2023-03-21 21:40:00</span><br><span class="line">comments:</span><br><span class="line">toc:</span><br><span class="line">toc_number:</span><br><span class="line">toc_style_simple:</span><br><span class="line">copyright:</span><br><span class="line">copyright_author:</span><br><span class="line">copyright_author_href:</span><br><span class="line">copyright_url:</span><br><span class="line">copyright_info:</span><br><span class="line">mathjax:</span><br><span class="line">katex:</span><br><span class="line">aplayer:</span><br><span class="line">highlight_shrink:</span><br><span class="line">aside:</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">## 一、kube-proxy简介</span><br><span class="line"></span><br><span class="line">&gt; **kube-proxy负责为Service提供cluster内部的服务发现和负载均衡**，它运行在每个Node计算节点上，负责Pod网络代理, 它会定时从etcd服务获取到service信息来做相应的策略，维护网络规则和四层负载均衡工作。在K8s集群中微服务的负载均衡是由Kube-proxy实现的，它是K8s集群内部的负载均衡器，也是一个分布式代理服务器，在K8s的每个节点上都有一个，这一设计体现了它的伸缩性优势，需要访问服务的节点越多，提供负载均衡能力的Kube-proxy就越多，高可用节点也随之增多。</span><br><span class="line"></span><br><span class="line">&gt; **service是一组pod的服务抽象，相当于一组pod的LB**，负责将请求分发给对应的pod。service会为这个LB提供一个IP，一般称为cluster IP。**kube-proxy的作用主要是负责service的实现**，具体来说，就是实现了内部从pod到service和外部的从node port向service的访问。</span><br><span class="line"></span><br><span class="line">简单来说:</span><br><span class="line"></span><br><span class="line">-   kube-proxy其实就是管理service的访问入口，包括集群内Pod到Service的访问和集群外访问service。</span><br><span class="line">    </span><br><span class="line">-   kube-proxy管理sevice的Endpoints，该service对外暴露一个Virtual IP，也成为Cluster IP, 集群内通过访问这个Cluster IP:Port就能访问到集群内对应的serivce下的Pod。</span><br><span class="line">    </span><br><span class="line">-   service是通过Selector选择的一组Pods的服务抽象，其实就是一个微服务，提供了服务的LB和反向代理的能力，而kube-proxy的主要作用就是负责service的实现。</span><br><span class="line">    </span><br><span class="line">-   service另外一个重要作用是，一个服务后端的Pods可能会随着生存灭亡而发生IP的改变，service的出现，给服务提供了一个固定的IP，而无视后端Endpoint的变化。</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">## 二、Service 简介</span><br><span class="line"></span><br><span class="line">&gt; Kubernetes Service定义了这样一种抽象： Service是一种可以访问 Pod逻辑分组的策略， Service通常是通过 Label Selector访问 Pod组。</span><br><span class="line"></span><br><span class="line">&gt; Service能够提供负载均衡的能力，但是在使用上有以下限制：**只提供 4 层负载均衡能力**，而没有 7 层功能，但有时我们可能需要更多的匹配规则来转发请求，这点上 4 层负载均衡是不支持的。</span><br><span class="line"></span><br><span class="line">## 三、Service 类型</span><br><span class="line"></span><br><span class="line">Service在 K8s中有以下四种类型：</span><br><span class="line"></span><br><span class="line">### 1）ClusterIp（集群内部使用）</span><br><span class="line"></span><br><span class="line">&gt; **默认类型**，自动分配一个仅Cluster内部可以访问的虚拟IP（VIP）。</span><br><span class="line"></span><br><span class="line">### 2）NodePort（对外暴露应用）</span><br><span class="line"></span><br><span class="line">&gt; 在ClusterIP基础上为Service在每台机器上绑定一个端口，这样就可以通过NodeIP:NodePort访问来访问该服务。  </span><br><span class="line">&gt; 端口范围：30000~32767</span><br><span class="line"></span><br><span class="line">### 3）LoadBalancer（对外暴露应用，适用于公有云）</span><br><span class="line"></span><br><span class="line">&gt; 在NodePort的基础上，借助Cloud Provider创建一个外部负载均衡器，并将请求转发到NodePort。</span><br><span class="line"></span><br><span class="line">### 4）ExternalName</span><br><span class="line"></span><br><span class="line">&gt; 创建一个dns别名指到service name上，主要是防止service name发生变化，要配合dns插件使用。通过返回 CNAME 和它的值，可以将服务映射到 externalName 字段的内容。这只有 Kubernetes 1.7或更高版本的kube-dns才支持（**我这里是Kubernetes 1.22.1版本**）。</span><br><span class="line"></span><br><span class="line">## 四、Service 工作流程</span><br><span class="line"></span><br><span class="line">![Service 工作流程](https://res.yongwang.lu/img/20230322225854.png)</span><br><span class="line"></span><br><span class="line">1.  客户端访问节点时通过 iptables实现的</span><br><span class="line">    </span><br><span class="line">2.  iptables规则是通过 kube-proxy写入的</span><br><span class="line">    </span><br><span class="line">3.  apiserver通过监控 kube-proxy去进行对服务和端点的监控</span><br><span class="line">    </span><br><span class="line">4.  kube-proxy通过 pod的标签（ lables）去判断这个断点信息是否写入到 Endpoints里</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">## 五、Endpoints简介</span><br><span class="line"></span><br><span class="line">&gt; endpoint是k8s集群中的一个资源对象，存储在etcd中，**用来记录一个service对应的所有pod的访问地址**。service配置selector，endpoint controller才会自动创建对应的endpoint对象；否则，不会生成endpoint对象。</span><br><span class="line"></span><br><span class="line">&gt; 【例如】k8s集群中创建一个名为hello的service，就会生成一个同名的endpoint对象，ENDPOINTS就是service关联的pod的ip地址和端口。</span><br><span class="line"></span><br><span class="line">### 1）工作流程</span><br><span class="line"></span><br><span class="line">&gt; **一个 Service 由一组 backend Pod 组成。这些 Pod 通过 endpoints 暴露出来**。 Service Selector 将持续评估，结果被 POST 到一个名称为 Service-hello 的 Endpoint 对象上。 当 Pod 终止后，它会自动从 Endpoint 中移除，新的能够匹配上 Service Selector 的 Pod 将自动地被添加到 Endpoint 中。 检查该 Endpoint，注意到 IP 地址与创建的 Pod 是相同的。现在，能够从集群中任意节点上使用 curl 命令请求 hello Service &lt;CLUSTER-IP&gt;:&lt;PORT&gt; 。</span><br><span class="line"></span><br><span class="line">### 2）示例</span><br><span class="line"></span><br><span class="line">1、deployment-hello.yaml</span><br><span class="line"></span><br><span class="line">```auto</span><br><span class="line">$ cat &lt;&lt; EOF &gt; deployment-hello.yaml</span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: hello</span><br><span class="line">spec:</span><br><span class="line">  replicas: 3</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">     run: hello</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        run: hello</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: nginx</span><br><span class="line">        image: nginx:1.17.1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>2、service-hello.yaml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt; service-hello.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: service-hello</span><br><span class="line">  labels:</span><br><span class="line">  name: service-hello</span><br><span class="line">spec:</span><br><span class="line">  type: NodePort      #这里代表是NodePort类型的,另外还有ingress,LoadBalancer</span><br><span class="line">  ports:</span><br><span class="line">  - port: 80          </span><br><span class="line">    targetPort: 8080</span><br><span class="line">    protocol: TCP</span><br><span class="line">    nodePort: 31111   # 所有的节点都会开放此端口30000--32767，此端口供外部调用。</span><br><span class="line">  selector:</span><br><span class="line">    run: hello</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>3、查看验证</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f deployment-hello.yaml</span><br><span class="line">$ kubectl apply -f service-hello.yaml</span><br><span class="line"># 查看pod，如果本地没有镜像，可能等待的时候比较长，一定要等到所有pod都在运行中才行。</span><br><span class="line">$ kubectl get pod -o wide|grep hello-*</span><br><span class="line"># 查看service</span><br><span class="line">$ kubectl get service service-hello -o wide</span><br><span class="line"># 查看service详情</span><br><span class="line">$ kubectl describe service service-hello</span><br><span class="line"># 查看pointer</span><br><span class="line">$ kubectl get endpoints service-hello</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、Service-Endpoints与Pod的关系-1"><a href="#六、Service-Endpoints与Pod的关系-1" class="headerlink" title="六、Service, Endpoints与Pod的关系"></a>六、Service, Endpoints与Pod的关系</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230158.png" alt="Service, Endpoints与Pod的关系"></p>
+<blockquote>
+<p>Kube-proxy进程获取每个Service的Endpoints,实现Service的负载均衡功能。</p>
+</blockquote>
+<p>Service的负载均衡转发规则<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230057.png" alt="Service的负载均衡转发规则 "></p>
+<blockquote>
+<p>访问Service的请求，不论是Cluster IP+TargetPort的方式；还是用Node节点IP+NodePort的方式，都被Node节点的Iptables规则重定向到Kube-proxy监听Service服务代理端口。kube-proxy接收到Service的访问请求后，根据负载策略，转发到后端的Pod。</p>
+</blockquote>
+<h2 id="七、Service的资源清单文件详解-1"><a href="#七、Service的资源清单文件详解-1" class="headerlink" title="七、Service的资源清单文件详解"></a>七、Service的资源清单文件详解</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">#元数据</span><br><span class="line">  name: string</span><br><span class="line">  #Service名称</span><br><span class="line">  namespace: string</span><br><span class="line">  #命名空间，不指定时默认为default命名空间</span><br><span class="line">  labels:</span><br><span class="line">  #自定义标签属性列表     </span><br><span class="line">    - name: string</span><br><span class="line">  annotations:</span><br><span class="line">  #自定义注解属性列表    </span><br><span class="line">    - name: string</span><br><span class="line">spec:</span><br><span class="line">#详细描述    </span><br><span class="line">  selector: []</span><br><span class="line">  #这里选择器一定要选择容器的标签，也就是pod的标签</span><br><span class="line">  #selector:</span><br><span class="line">  #  app: web</span><br><span class="line">  #Label Selector配置，选择具有指定label标签的pod作为管理范围</span><br><span class="line">  type: string</span><br><span class="line">  #service的类型，指定service的访问方式，默认ClusterIP</span><br><span class="line">  #ClusterIP：虚拟的服务ip地址，用于k8s集群内部的pod访问，在Node上kube-porxy通过设置的iptables规则进行转发</span><br><span class="line">  #NodePort：使用宿主机端口，能够访问各Node的外部客户端通过Node的IP和端口就能访问服务器</span><br><span class="line">  #LoadBalancer：使用外部负载均衡器完成到服务器的负载分发，</span><br><span class="line">  #需要在spec.status.loadBalancer字段指定外部负载均衡服务器的IP，并同时定义nodePort和clusterIP用于公有云环境。</span><br><span class="line">  clusterIP: string</span><br><span class="line">  #虚拟服务IP地址，当type=ClusterIP时，如不指定，则系统会自动进行分配，也可以手动指定。当type=loadBalancer，需要指定</span><br><span class="line">  sessionAffinity: string</span><br><span class="line">  #是否支持session，可选值为ClietIP，默认值为空</span><br><span class="line">  #ClientIP表示将同一个客户端(根据客户端IP地址决定)的访问请求都转发到同一个后端Pod</span><br><span class="line">  ports:</span><br><span class="line">  #service需要暴露的端口列表    </span><br><span class="line">  - name: string</span><br><span class="line">    #端口名称</span><br><span class="line">    protocol: string</span><br><span class="line">    #端口协议，支持TCP或UDP，默认TCP</span><br><span class="line">     port: int</span><br><span class="line">    #服务监听的端口号</span><br><span class="line">     targetPort: int</span><br><span class="line">    #需要转发到后端的端口号</span><br><span class="line">     nodePort: int</span><br><span class="line">    #当type=NodePort时，指定映射到物理机的端口号</span><br><span class="line">  status:</span><br><span class="line">  #当type=LoadBalancer时，设置外部负载均衡的地址，用于公有云环境    </span><br><span class="line">    loadBalancer:</span><br><span class="line">    #外部负载均衡器    </span><br><span class="line">      ingress:</span><br><span class="line">      #外部负载均衡器 </span><br><span class="line">      ip: string</span><br><span class="line">      #外部负载均衡器的IP地址</span><br><span class="line">      hostname: string</span><br><span class="line">     #外部负载均衡器的机主机</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、kubernetes中的四种port-1"><a href="#八、kubernetes中的四种port-1" class="headerlink" title="八、kubernetes中的四种port"></a>八、kubernetes中的四种port</h2><h3 id="1）nodePort-1"><a href="#1）nodePort-1" class="headerlink" title="1）nodePort"></a>1）nodePort</h3><blockquote>
+<p><strong>nodePort是外部访问k8s集群中service的端口</strong>，通过nodeIP: nodePort可以从外部访问到某个service。</p>
+</blockquote>
+<h3 id="2）port-1"><a href="#2）port-1" class="headerlink" title="2）port"></a>2）port</h3><blockquote>
+<p><strong>port是k8s集群内部访问service的端口</strong>，即通过clusterIP: port可以访问到某个service。</p>
+</blockquote>
+<h3 id="3）targetPort-1"><a href="#3）targetPort-1" class="headerlink" title="3）targetPort"></a>3）targetPort</h3><blockquote>
+<p><strong>targetPort是pod的端口</strong>，从port和nodePort来的流量经过kube-proxy流入到后端pod的targetPort上，最后进入容器。</p>
+</blockquote>
+<h3 id="4）containerPort-1"><a href="#4）containerPort-1" class="headerlink" title="4）containerPort"></a>4）containerPort</h3><blockquote>
+<p><strong>containerPort是pod内部容器的端口</strong>，targetPort映射到containerPort。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://mmbiz.qpic.cn/mmbiz_png/ZyHzM6VdDdXcBuy39GptibDPKJMXiacaicepLhblRia9j7k0YRGicmTZW3RSuF4ofq38gHQY7dYOdu10G45lE1nzE7Q/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<h2 id="九、kubernetes服务发现-1"><a href="#九、kubernetes服务发现-1" class="headerlink" title="九、kubernetes服务发现"></a>九、kubernetes服务发现</h2><blockquote>
+<p>Kubernetes提供了两种方式进行服务发现, 即<strong>环境变量和DNS</strong>, 简单说明如下:</p>
+</blockquote>
+<h3 id="1）环境变量-1"><a href="#1）环境变量-1" class="headerlink" title="1）环境变量"></a>1）环境变量</h3><blockquote>
+<p>当你创建一个Pod的时候，kubelet会在该Pod中注入集群内所有Service的相关环境变量。</p>
+</blockquote>
+<blockquote>
+<p>【注意】要想一个Pod中注入某个Service的环境变量，则<strong>必须Service要比该Pod先创建</strong>。这一点，几乎使得这种方式进行服务发现不可用。比如，一个ServiceName为redis-master的Service，对应的ClusterIP:Port为172.16.50.11:6379，则其对应的环境变量为:</p>
+</blockquote>
+<blockquote>
+<p>REDIS_MASTER_SERVICE_HOST&#x3D;172.16.50.11<br>REDIS_MASTER_SERVICE_PORT&#x3D;6379<br>REDIS_MASTER_PORT&#x3D;tcp:&#x2F;&#x2F;172.16.50.11:6379<br>REDIS_MASTER_PORT_6379_TCP&#x3D;tcp:&#x2F;&#x2F;172.16.50.11:6379<br>REDIS_MASTER_PORT_6379_TCP_PROTO&#x3D;tcp<br>REDIS_MASTER_PORT_6379_TCP_PORT&#x3D;6379<br>REDIS_MASTER_PORT_6379_TCP_ADDR&#x3D;172.16.50.11</p>
+</blockquote>
+<h3 id="2-DNS-1"><a href="#2-DNS-1" class="headerlink" title="2) DNS"></a>2) DNS</h3><blockquote>
+<p>这是k8s官方强烈推荐的方式!!! 可以通过cluster add-on方式轻松的创建KubeDNS来对集群内的Service进行服务发现。</p>
+</blockquote>
+<h2 id="十、Service代理模式-1"><a href="#十、Service代理模式-1" class="headerlink" title="十、Service代理模式"></a>十、Service代理模式</h2><blockquote>
+<p>k8s群集中的每个节点都运行一个kube-proxy的组件，kube-proxy其实是一个代理层负责实现service。</p>
+</blockquote>
+<blockquote>
+<p><strong>Kubernetes v1.2之前默认是userspace，v1.2之后默认是iptables模式</strong>，iptables模式性能和可靠性更好，但是iptables模式依赖健康检查，在没有健康检查的情况下如果一个pod不响应，iptables模式不会切换另一个pod上。</p>
+</blockquote>
+<h3 id="1）userspace模式-1"><a href="#1）userspace模式-1" class="headerlink" title="1）userspace模式"></a>1）userspace模式</h3><blockquote>
+<p>客户端访问ServiceIP(clusterIP)请求会先从用户空间到内核中的iptables，然后回到用户空间kube-proxy，kube-proxy负责代理工作。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322231436.png" alt="图片"></p>
+<p>缺点：</p>
+<blockquote>
+<p>可见，userspace这种mode最大的问题是，service的请求会先从用户空间进入内核iptables，然后再回到用户空间，由kube-proxy完成后端Endpoints的选择和代理工作，这样流量从用户空间进出内核带来的性能损耗是不可接受的。这也是k8s v1.0及之前版本中对kube-proxy质疑最大的一点，因此社区就开始研究iptables mode。</p>
+</blockquote>
+<p>详细工作流程：</p>
+<blockquote>
+<p>userspace这种模式下，kube-proxy 持续监听 Service 以及 Endpoints 对象的变化；对每个 Service，它都为其在本地节点开放一个端口，作为其服务代理端口；发往该端口的请求会采用一定的策略转发给与该服务对应的后端 Pod 实体。kube-proxy 同时会在本地节点设置 iptables 规则，配置一个 Virtual IP，把发往 Virtual IP 的请求重定向到与该 Virtual IP 对应的服务代理端口上。其工作流程大体如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322231458.png" alt="图片"></p>
+<blockquote>
+<p>【分析】该模式请求在到达 iptables 进行处理时就会进入内核，而 kube-proxy 监听则是在用户态, 请求就形成了从用户态到内核态再返回到用户态的传递过程, 一定程度降低了服务性能。</p>
+</blockquote>
+<h3 id="2）iptables模式（默认模式）-1"><a href="#2）iptables模式（默认模式）-1" class="headerlink" title="2）iptables模式（默认模式）"></a>2）iptables模式（默认模式）</h3><blockquote>
+<p>该模式完全利用内核iptables来实现service的代理和LB, 这是K8s在<strong>v1.2及之后版本默认模式</strong>. 工作原理如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322231525.png" alt="图片"></p>
+<blockquote>
+<p><strong>iptables mode因为使用iptable NAT来完成转发，也存在不可忽视的性能损耗</strong>。另外，如果集群中存在上万的Service&#x2F;Endpoint，那么Node上的iptables rules将会非常庞大，性能还会再打折扣。这也导致目前大部分企业用k8s上生产时，都不会直接用kube-proxy作为服务代理，而是通过自己开发或者通过Ingress Controller来集成HAProxy, Nginx来代替kube-proxy。</p>
+</blockquote>
+<p>详细工作流程：</p>
+<blockquote>
+<p>iptables 模式与 userspace 相同，kube-proxy 持续监听 Service 以及 Endpoints 对象的变化；但它并不在本地节点开启反向代理服务，而是把反向代理全部交给 iptables 来实现；即 iptables 直接将对 VIP 的请求转发给后端 Pod，通过 iptables 设置转发策略。其工作流程大体如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322231458.png" alt="图片"></p>
+<blockquote>
+<p>【分析】 该模式相比 userspace 模式，克服了请求在用户态-内核态反复传递的问题，性能上有所提升，但使用 iptables NAT 来完成转发，存在不可忽视的性能损耗，而且在大规模场景下，iptables 规则的条目会十分巨大，性能上还要再打折扣。</p>
+</blockquote>
+<p>示例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF &gt; mysql-service.yaml</span></span><br><span class="line"><span class="string">apiVersion: v1</span></span><br><span class="line"><span class="string">kind: Service</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  labels:</span></span><br><span class="line"><span class="string">    name: mysql</span></span><br><span class="line"><span class="string">    role: service</span></span><br><span class="line"><span class="string">  name: mysql-service</span></span><br><span class="line"><span class="string">spec:</span></span><br><span class="line"><span class="string">  ports:</span></span><br><span class="line"><span class="string">    - port: 3306</span></span><br><span class="line"><span class="string">      targetPort: 3306</span></span><br><span class="line"><span class="string">      nodePort: 30964</span></span><br><span class="line"><span class="string">  type: NodePort</span></span><br><span class="line"><span class="string">  selector:</span></span><br><span class="line"><span class="string">    mysql-service: &quot;true&quot;</span></span><br><span class="line"><span class="string">    name: mysql</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line">$ kubectl apply -f mysql-service.yaml</span><br><span class="line">$ kubectl get svc</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）ipvs模型-1"><a href="#3）ipvs模型-1" class="headerlink" title="3）ipvs模型"></a>3）ipvs模型</h3><blockquote>
+<p>在kubernetes 1.8以上的版本中，对于kube-proxy组件增加了除iptables模式和用户模式之外还支持ipvs模式。<strong>kube-proxy ipvs 是基于 NAT 实现的</strong>，通过ipvs的NAT模式，对访问k8s service的请求进行虚IP到POD IP的转发。当创建一个 service 后，kubernetes 会在每个节点上创建一个网卡，同时帮你将 Service IP(VIP) 绑定上，此时相当于每个 Node 都是一个 ds，而其他任何 Node 上的 Pod，甚至是宿主机服务(比如 kube-apiserver 的 6443)都可能成为 rs；</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230705.png" alt="ipvs-service模型"></p>
+<p>详细工作流程：</p>
+<blockquote>
+<p>与iptables、userspace 模式一样，kube-proxy 依然监听Service以及Endpoints对象的变化, 不过它并不创建反向代理, 也不创建大量的 iptables 规则, 而是通过netlink 创建ipvs规则，并使用k8s Service与Endpoints信息，对所在节点的ipvs规则进行定期同步; netlink 与 iptables 底层都是基于 netfilter 钩子，但是 netlink 由于采用了 hash table 而且直接工作在内核态，在性能上比 iptables 更优。其工作流程大体如下:</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/20230322230748.png" alt="ipvs工作流程"></p>
+<blockquote>
+<p>【分析】ipvs 是目前 kube-proxy 所支持的最新代理模式，相比使用 iptables，使用 ipvs 具有更高的性能。</p>
+</blockquote>
+<hr>
+<h3 id="4）kube-proxy配置-ipvs模式（所有节点）-1"><a href="#4）kube-proxy配置-ipvs模式（所有节点）-1" class="headerlink" title="4）kube-proxy配置 ipvs模式（所有节点）"></a>4）kube-proxy配置 ipvs模式（所有节点）</h3><p>1、加载ip_vs相关内核模块</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ modprobe -- ip_vs</span><br><span class="line">$ modprobe -- ip_vs_sh</span><br><span class="line">$ modprobe -- ip_vs_rr</span><br><span class="line">$ modprobe -- ip_vs_wrr</span><br><span class="line">$ modprobe -- nf_conntrack_ipv4</span><br></pre></td></tr></table></figure>
+
+<p>所有节点验证开启了ipvs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ lsmod |grep ip_vs</span><br></pre></td></tr></table></figure>
+
+<p>2、安装ipvsadm工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install ipset ipvsadm -y</span><br></pre></td></tr></table></figure>
+
+<p>3、编辑kube-proxy配置文件，mode修改成ipvs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl edit  configmap -n kube-system  kube-proxy</span><br></pre></td></tr></table></figure>
+
+<p>4、重启kube-proxy<br>先查看之前的kube-proxy</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy</span><br></pre></td></tr></table></figure>
+
+<p>删掉上面三个kube-proxy，重新拉起新的服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy |awk <span class="string">&#x27;&#123;system(&quot;kubectl delete pod &quot;$1&quot; -n kube-system&quot;)&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>再查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy</span><br></pre></td></tr></table></figure>
+
+<p>5、查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ipvsadm -Ln</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pod -n kube-system | grep kube-proxy</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu">L丶lulu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu/post/9f7e260b.html">https://blog.yongwang.lu/post/9f7e260b.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.yongwang.lu" target="_blank">L丶lulu‘s Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a></div><div class="post_share"><div class="social-share" data-image="https://res.yongwang.lu/img/k8s_card.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Kubernetes（k8s）7、健康检查详解</div></div></a></div><div class="next-post pull-right"><a href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Kubernetes（k8s）5、工作负载-Deployment</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/700b7316.html" title="Kubernetes（k8s）1、基本介绍和功能架构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）1、基本介绍和功能架构</div></div></a></div><div><a href="/post/9866a7eb.html" title="Kubernetes（k8s）2、集群搭建(containerd)"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）2、集群搭建(containerd)</div></div></a></div><div><a href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）3、Pod详解</div></div></a></div><div><a href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）4、工作负载</div></div></a></div><div><a href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）5、工作负载-Deployment</div></div></a></div><div><a href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）7、健康检查详解</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">L丶lulu</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LuYongwang"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/luYongwang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:yongwang.lu@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">孩子你很幼稚,真的很幼稚~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81kube-proxy%E7%AE%80%E4%BB%8B"><span class="toc-text">一、kube-proxy简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Service-%E7%AE%80%E4%BB%8B"><span class="toc-text">二、Service 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Service-%E7%B1%BB%E5%9E%8B"><span class="toc-text">三、Service 类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89ClusterIp%EF%BC%88%E9%9B%86%E7%BE%A4%E5%86%85%E9%83%A8%E4%BD%BF%E7%94%A8%EF%BC%89"><span class="toc-text">1）ClusterIp（集群内部使用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89NodePort%EF%BC%88%E5%AF%B9%E5%A4%96%E6%9A%B4%E9%9C%B2%E5%BA%94%E7%94%A8%EF%BC%89"><span class="toc-text">2）NodePort（对外暴露应用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89LoadBalancer%EF%BC%88%E5%AF%B9%E5%A4%96%E6%9A%B4%E9%9C%B2%E5%BA%94%E7%94%A8%EF%BC%8C%E9%80%82%E7%94%A8%E4%BA%8E%E5%85%AC%E6%9C%89%E4%BA%91%EF%BC%89"><span class="toc-text">3）LoadBalancer（对外暴露应用，适用于公有云）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89ExternalName"><span class="toc-text">4）ExternalName</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Service-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">四、Service 工作流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Endpoints%E7%AE%80%E4%BB%8B"><span class="toc-text">五、Endpoints简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">1）工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89%E7%A4%BA%E4%BE%8B"><span class="toc-text">2）示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81Service-Endpoints%E4%B8%8EPod%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">六、Service, Endpoints与Pod的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Service%E7%9A%84%E8%B5%84%E6%BA%90%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3"><span class="toc-text">七、Service的资源清单文件详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81kubernetes%E4%B8%AD%E7%9A%84%E5%9B%9B%E7%A7%8Dport"><span class="toc-text">八、kubernetes中的四种port</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89nodePort"><span class="toc-text">1）nodePort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89port"><span class="toc-text">2）port</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89targetPort"><span class="toc-text">3）targetPort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89containerPort"><span class="toc-text">4）containerPort</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81kubernetes%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-text">九、kubernetes服务发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-text">1）环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-DNS"><span class="toc-text">2) DNS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81Service%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="toc-text">十、Service代理模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89userspace%E6%A8%A1%E5%BC%8F"><span class="toc-text">1）userspace模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89iptables%E6%A8%A1%E5%BC%8F%EF%BC%88%E9%BB%98%E8%AE%A4%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-text">2）iptables模式（默认模式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89ipvs%E6%A8%A1%E5%9E%8B"><span class="toc-text">3）ipvs模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89kube-proxy%E9%85%8D%E7%BD%AE-ipvs%E6%A8%A1%E5%BC%8F%EF%BC%88%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%EF%BC%89"><span class="toc-text">4）kube-proxy配置 ipvs模式（所有节点）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81Service-Endpoints%E4%B8%8EPod%E7%9A%84%E5%85%B3%E7%B3%BB-1"><span class="toc-text">六、Service, Endpoints与Pod的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Service%E7%9A%84%E8%B5%84%E6%BA%90%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3-1"><span class="toc-text">七、Service的资源清单文件详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81kubernetes%E4%B8%AD%E7%9A%84%E5%9B%9B%E7%A7%8Dport-1"><span class="toc-text">八、kubernetes中的四种port</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89nodePort-1"><span class="toc-text">1）nodePort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89port-1"><span class="toc-text">2）port</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89targetPort-1"><span class="toc-text">3）targetPort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89containerPort-1"><span class="toc-text">4）containerPort</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81kubernetes%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0-1"><span class="toc-text">九、kubernetes服务发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F-1"><span class="toc-text">1）环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-DNS-1"><span class="toc-text">2) DNS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81Service%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F-1"><span class="toc-text">十、Service代理模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89userspace%E6%A8%A1%E5%BC%8F-1"><span class="toc-text">1）userspace模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89iptables%E6%A8%A1%E5%BC%8F%EF%BC%88%E9%BB%98%E8%AE%A4%E6%A8%A1%E5%BC%8F%EF%BC%89-1"><span class="toc-text">2）iptables模式（默认模式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89ipvs%E6%A8%A1%E5%9E%8B-1"><span class="toc-text">3）ipvs模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89kube-proxy%E9%85%8D%E7%BD%AE-ipvs%E6%A8%A1%E5%BC%8F%EF%BC%88%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%EF%BC%89-1"><span class="toc-text">4）kube-proxy配置 ipvs模式（所有节点）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）7、健康检查详解"/></a><div class="content"><a class="title" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解">Kubernetes（k8s）7、健康检查详解</a><time datetime="2023-01-05T08:40:00.000Z" title="发表于 2023-01-05 16:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）6、kube-proxy、Service详解"/></a><div class="content"><a class="title" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解">Kubernetes（k8s）6、kube-proxy、Service详解</a><time datetime="2023-01-05T07:40:00.000Z" title="发表于 2023-01-05 15:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）5、工作负载-Deployment"/></a><div class="content"><a class="title" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment">Kubernetes（k8s）5、工作负载-Deployment</a><time datetime="2023-01-05T06:40:00.000Z" title="发表于 2023-01-05 14:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）4、工作负载"/></a><div class="content"><a class="title" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载">Kubernetes（k8s）4、工作负载</a><time datetime="2023-01-05T05:40:00.000Z" title="发表于 2023-01-05 13:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）3、Pod详解"/></a><div class="content"><a class="title" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解">Kubernetes（k8s）3、Pod详解</a><time datetime="2023-01-05T04:40:00.000Z" title="发表于 2023-01-05 12:40:00">2023-01-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://kubernetes.io/images/nav_logo2.svg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023  <i id="heartbeat" class="fa fas fa-heartbeat"></i> L丶lulu</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="2929951612" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="false" muted></div><canvas id="universe"></canvas><script defer src="/js/universe.js"/><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></body></html>

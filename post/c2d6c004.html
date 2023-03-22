@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Kubernetes（k8s）5、工作负载-Deployment | L丶lulu‘s Blog</title><meta name="author" content="L丶lulu"><meta name="copyright" content="L丶lulu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="kubernetes1.26"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://blog.yongwang.lu/post/c2d6c004.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?2a2af082865b04778f6960717eb1510b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Kubernetes（k8s）5、工作负载-Deployment',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-05 14:40:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><style>@font-face{font-family:tzy;src:url(https://fastly.jsdelivr.net/gh/tzy13755126023/BLOG_SOURCE/font/ZhuZiAWan.woff2);font-display:swap}.gitcalendar,body{font-family:tzy!important}.categoryBar-list{max-height:400px}.clock-row{overflow:hidden;text-overflow:ellipsis}#page-header,#web_bg{-webkit-animation:imgblur 2s 1 ease-in-out;animation:imgblur 2s 1 ease-in-out}@keyframes imgblur{0%{filter:blur(5px)}100%{filter:blur(0)}}@-webkit-keyframes imgblur{0%{-webkit-filter:blur(5px)}100%{-webkit-filter:blur(0)}}.table-wrap img{margin:.6rem auto .1rem!important}.site-card-group img{margin:0 auto .1rem!important}.site-card-group .info a img{margin-right:10px!important}[data-theme=dark] .site-card-group .site-card .info .title{color:#f0f0f0!important}[data-theme=dark] .site-card-group .site-card .info .desc{color:rgba(255,255,255,.7)!important}.site-card-group .info .desc{margin-top:4px!important}figure.highlight pre .addition{color:#00bf03!important}</style><link rel="stylesheet" href="/css/universe.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="L丶lulu‘s Blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://kubernetes.io/images/nav_logo2.svg')"><nav id="nav"><span id="blog-info"><a href="/" title="L丶lulu‘s Blog"><span class="site-name">L丶lulu‘s Blog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Kubernetes（k8s）5、工作负载-Deployment</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-01-05T06:40:00.000Z" title="发表于 2023-01-05 14:40:00">2023-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-05T06:40:00.000Z" title="更新于 2023-01-05 14:40:00">2023-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/kubernetes/">kubernetes</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>在 kubernetes 的世界里，Pod 是运行应用的载体。 Pod 是由多个容器组成、是 kubernetes 的最小调度单元、Pod 共享底层资源、由 kubernetes 来管理生命周期。</p>
+</blockquote>
+<blockquote>
+<p>一般情况下，我们并不直接创建 Pod，而是通过 Deployment 来创建 Pod，由 Deployment 来负责创建、更新、维护其所管理的所有 Pods。</p>
+</blockquote>
+<blockquote>
+<p>这里注意并不直接管理pod, 而是通过管理replicaset来间接管理pod，即：deployment管理replicaset，replicaset管理pod。所以deployment比replicaset的功能更强大。</p>
+</blockquote>
+<h2 id="一、Deployment介绍与工作原理"><a href="#一、Deployment介绍与工作原理" class="headerlink" title="一、Deployment介绍与工作原理"></a>一、Deployment介绍与工作原理</h2><h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><p>Deployment是一种更高阶的工作负载资源。其可以视作为对RS的再一次升级。其不仅可以部署应用还可以通过声明的方式升级应用。具体地，Deployment被创建后，其内部先创建相应的RS资源。再利用该RS资源创建相应的Pod</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/202303222110977.png" alt="deployment介绍"></p>
+<h3 id="2-工作流程"><a href="#2-工作流程" class="headerlink" title="2.工作流程"></a>2.工作流程</h3><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/202303222114591.png" alt="工作流程"><br>图片来源书籍: kubernetes in action</p>
+<p>客户端将创建 Deployment 的请求发送给 Apiserver<br>Apiserver 将 Deployment 信息写入 etcd,etcd 将写入结果响应给 Apiserver,Apiserver 将创建结果响应给客户端 (此时未经过 ControllerManager,deployment 的 READY 状态为 0)<br>ControllerManager 通过 Apiserver 的 watch 接口，获取到新增的 Deployment 资源，Deployment controller 向 Apiserver 发送创建 RS 的请求，Apiserver 将 RS 信息写入 etcd。。。<br>ControllerManager 通过 Apiserver 的 watch 接口，获取到新增的 ReplicaSet 资源，ReplicaSet controller 向 Apiserver 发送创建 Pod 的请求，Apiserver 将 Pod 信息写入 etcd。。。<br>Scheduler 通过 Apiserver 的 watch 接口，获取到未调度的 Pod 的通知，根据调度算法选择一个 node 节点，告诉 Apiserver 这个 Pod 应该运行在哪个节点<br>Apiserver 将这个 Pod 和 node 的绑定信息更新到 etcd,etcd 将写入结果响应给 Apiserver<br>Kubelet 通过 Apiserver 的 watch 接口，获取到当前节点有创建 Pod 的通知，Kubelet 调用 docker 创建容器，Kubelet 将 Pod 运行状态发送给 Apiserver<br>Apiserver 将 Pod 状态信息更新到 etcd</p>
+<h2 id="二、Deployment的使用"><a href="#二、Deployment的使用" class="headerlink" title="二、Deployment的使用"></a>二、Deployment的使用</h2><h3 id="1-创建Deployment"><a href="#1-创建Deployment" class="headerlink" title="1.创建Deployment"></a>1.创建Deployment</h3><p>利用 Deployment 也可以创建 Pod，下面来比较一下两种方式创建 Pod 的区别。</p>
+<blockquote>
+<p>方式一：使用kubectl run 创建 Pod</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl run my-nginx --image=nginx:1.20 -n hello-world</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>方式二：使用 kubectl create deployment 创建 Pod</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create deployment my-nginx-dep --image=nginx:1.20 -n hello-world</span><br></pre></td></tr></table></figure>
+
+<p>如果此时要删除上面创建的 Pod ，对于方式一创建的，很简单，直接执行下面的这行语句即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod my-nginx -n hello-world</span><br></pre></td></tr></table></figure>
+
+<p>而要删除方式二创建的 Pod ，我们还能用下面的这行语句吗？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod my-nginx-dep -n hello-world</span><br></pre></td></tr></table></figure>
+
+<p>这么做，是删不掉的。因为每删除一次，k8s又会自动创建一个新的 my-nginx-dep 的 Pod（Deployment自愈能力的体现）。</p>
+<p>原因在于方式二是通过 Deployment 的方式创建的 Pod（以部署一个应用的方式）。</p>
+<p>如果要删除方式二创建的 Pod，可以通过下面的步骤进行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一步，获取deploy（部署）列表信息</span></span><br><span class="line">kubectl get deploy -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第二步，通过删除deploy（部署）的方式删除Pod</span></span><br><span class="line">kubectl delete deploy my-tomcat -n hello-world</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Deployment的各种能力"><a href="#2-Deployment的各种能力" class="headerlink" title="2.Deployment的各种能力"></a>2.Deployment的各种能力</h3><h4 id="2-1-多副本能力"><a href="#2-1-多副本能力" class="headerlink" title="2.1 多副本能力"></a>2.1 多副本能力</h4><p>副本：可以理解为对于一个应用而言，将它运行在一个 Pod 上就是起一个副本，将它运行在多个 Pod 上，就是起了多个副本。</p>
+<p>下面通过两种方式，来实现多副本的能力。</p>
+<blockquote>
+<p>方式一：命令行方式</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 通过部署的方式，创建nginx的3个副本</span></span><br><span class="line">kubectl create deployment nginx-base --image=nginx --replicas=3 -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看部署列表信息</span></span><br><span class="line">kubectl get deploy -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除本次部署（即同时删除3个Pod）</span></span><br><span class="line">kubectl delete deploy nginx-base -n hello-world</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>方式二：yaml文件方式</p>
+</blockquote>
+<p>（1）写一个 yaml 文件，例如 nginx-base.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span> <span class="comment"># 版本号</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span>    <span class="comment"># 资源类型</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">nginx-base</span> <span class="comment"># 标签名称</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-base</span>  <span class="comment"># 本次部署的名字</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">hello-world</span> <span class="comment"># 命名空间</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span> <span class="comment"># 副本数量</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx-base</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx-base</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">nginx:1.20</span> <span class="comment"># 容器的镜像名称</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">nginx</span>  <span class="comment"># 容器名</span></span><br></pre></td></tr></table></figure>
+
+<p>（2）执行 nginx-base.yaml 文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f nginx-base.yaml</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-扩缩容能力"><a href="#2-2-扩缩容能力" class="headerlink" title="2.2 扩缩容能力"></a>2.2 扩缩容能力</h4><p>扩容：遇到流量高峰，需要增加副本数量，降低当前负载</p>
+<p>缩容：流量高峰过去，不需要这么多副本，减少数量</p>
+<blockquote>
+<p>方式一：命令行方式</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将nginx-base的副本数量扩容到5个</span></span><br><span class="line">kubectl scale --replicas=5 deployment/nginx-base -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将nginx-base的副本数量缩减到2个</span></span><br><span class="line">kubectl scale --replicas=2 deployment/nginx-base -n hello-world</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>方式二：修改yaml方式</p>
+</blockquote>
+<p>打开对应的 yaml 文件，修改副本发数量，然后保存退出即可。</p>
+<p>（1）打开文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get deploy</span><br><span class="line"></span><br><span class="line">kubectl edit deployment nginx-base</span><br></pre></td></tr></table></figure>
+
+<p>（2）编辑文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: apps/v1 <span class="comment"># 版本号</span></span><br><span class="line">kind: Deployment    <span class="comment"># 资源类型</span></span><br><span class="line">metadata:</span><br><span class="line">  labels:</span><br><span class="line">    app: nginx-base <span class="comment"># 标签名称</span></span><br><span class="line">  name: nginx-base  <span class="comment"># 本次部署的名字</span></span><br><span class="line">  namespace: hello-world <span class="comment"># 命名空间</span></span><br><span class="line">spec:</span><br><span class="line">  replicas: 2 <span class="comment"># 副本数量</span></span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: nginx-base</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nginx-base</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - image: nginx:1.20 <span class="comment"># 容器的镜像名称</span></span><br><span class="line">        name: nginx  <span class="comment"># 容器名</span></span><br></pre></td></tr></table></figure>
+
+<p>（3）保存退出</p>
+<h4 id="2-3-自愈及故障转移能力"><a href="#2-3-自愈及故障转移能力" class="headerlink" title="2.3 自愈及故障转移能力"></a>2.3 自愈及故障转移能力</h4><p>自愈能力：假设某个 Pod 发生故障，不能正常对外提供服务，此时 k8s 会自动杀死该 Pod ，然后再将该 Pod 重新启动。</p>
+<p>转移能力：假设某个 Pod 所在的结点 node-01 发生了宕机，整个服务器坏掉，不能正常使用，当 k8s 经过一小段时间（可能是5分钟）检测后，发现该服务器确实不能提供服务了，那么 k8s 会自动在其它结点上重新创建 node-01 结点里面的所有 Pod ，以达到正常对外提供服务的目的。</p>
+<h4 id="2-4-滚动更新能力"><a href="#2-4-滚动更新能力" class="headerlink" title="2.4 滚动更新能力"></a>2.4 滚动更新能力</h4><p>k8s 在更新集群应用时，对于每个结点上的 Pod ，会先启动一个新的 Pod ，然后再停掉对应的老的 Pod，如此循环，直至实现每个结点上的 Pod 的更新，才算完成本次集群应用的更新。</p>
+<blockquote>
+<p>方式一：命令行方式</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl <span class="built_in">set</span> image deployment/nginx-base nginx=nginx:1.16.1 --record -n hello-world</span><br><span class="line"></span><br><span class="line">kubectl rollout status deployment/nginx-base -n hello-world</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>方式二：修改yaml方式</p>
+</blockquote>
+<p>打开对应的 yaml 文件，修改副本发数量，然后保存退出即可。</p>
+<p>（1）打开文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get deploy</span><br><span class="line"></span><br><span class="line">kubectl edit deployment nginx-base</span><br></pre></td></tr></table></figure>
+
+<p>（2）编辑文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: apps/v1 <span class="comment"># 版本号</span></span><br><span class="line">kind: Deployment    <span class="comment"># 资源类型</span></span><br><span class="line">metadata:</span><br><span class="line">  labels:</span><br><span class="line">    app: nginx-base <span class="comment"># 标签名称</span></span><br><span class="line">  name: nginx-base  <span class="comment"># 本次部署的名字</span></span><br><span class="line">  namespace: hello-world <span class="comment"># 命名空间</span></span><br><span class="line">spec:</span><br><span class="line">  replicas: 2 <span class="comment"># 副本数量</span></span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: nginx-base</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nginx-base</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - image: nginx:1.16.1 <span class="comment"># 容器的镜像名称</span></span><br><span class="line">        name: nginx  <span class="comment"># 容器名</span></span><br></pre></td></tr></table></figure>
+
+<p>（3）保存退出</p>
+<h4 id="2-5-版本回退能力"><a href="#2-5-版本回退能力" class="headerlink" title="2.5 版本回退能力"></a>2.5 版本回退能力</h4><p>如果对当前这次部署不满意，无法正常提供服务，k8s可以回滚到之前的历史版本。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#历史记录</span></span><br><span class="line">kubectl rollout <span class="built_in">history</span> deployment/nginx-base -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看某个历史详情</span></span><br><span class="line">kubectl rollout <span class="built_in">history</span> deployment/nginx-base --revision=2</span><br><span class="line"></span><br><span class="line"><span class="comment">#回滚到上次版本</span></span><br><span class="line">kubectl rollout undo deployment/nginx-base -n hello-world</span><br><span class="line"></span><br><span class="line"><span class="comment">#回滚到指定版本</span></span><br><span class="line">kubectl rollout undo deployment/nginx-base --to-revision=2 -n hello-world</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu">L丶lulu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.yongwang.lu/post/c2d6c004.html">https://blog.yongwang.lu/post/c2d6c004.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.yongwang.lu" target="_blank">L丶lulu‘s Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a></div><div class="post_share"><div class="social-share" data-image="https://res.yongwang.lu/img/k8s_card.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Kubernetes（k8s）6、kube-proxy、Service详解</div></div></a></div><div class="next-post pull-right"><a href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Kubernetes（k8s）4、工作负载</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/700b7316.html" title="Kubernetes（k8s）1、基本介绍和功能架构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）1、基本介绍和功能架构</div></div></a></div><div><a href="/post/9866a7eb.html" title="Kubernetes（k8s）2、集群搭建(containerd)"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）2、集群搭建(containerd)</div></div></a></div><div><a href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）3、Pod详解</div></div></a></div><div><a href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）4、工作负载</div></div></a></div><div><a href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）6、kube-proxy、Service详解</div></div></a></div><div><a href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-05</div><div class="title">Kubernetes（k8s）7、健康检查详解</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">L丶lulu</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LuYongwang"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/luYongwang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:yongwang.lu@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">孩子你很幼稚,真的很幼稚~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Deployment%E4%BB%8B%E7%BB%8D%E4%B8%8E%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">一、Deployment介绍与工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BB%8B%E7%BB%8D"><span class="toc-text">1.介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">2.工作流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Deployment%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">二、Deployment的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BADeployment"><span class="toc-text">1.创建Deployment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Deployment%E7%9A%84%E5%90%84%E7%A7%8D%E8%83%BD%E5%8A%9B"><span class="toc-text">2.Deployment的各种能力</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E5%A4%9A%E5%89%AF%E6%9C%AC%E8%83%BD%E5%8A%9B"><span class="toc-text">2.1 多副本能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-%E6%89%A9%E7%BC%A9%E5%AE%B9%E8%83%BD%E5%8A%9B"><span class="toc-text">2.2 扩缩容能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-%E8%87%AA%E6%84%88%E5%8F%8A%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E8%83%BD%E5%8A%9B"><span class="toc-text">2.3 自愈及故障转移能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%83%BD%E5%8A%9B"><span class="toc-text">2.4 滚动更新能力</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-%E7%89%88%E6%9C%AC%E5%9B%9E%E9%80%80%E8%83%BD%E5%8A%9B"><span class="toc-text">2.5 版本回退能力</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）7、健康检查详解"/></a><div class="content"><a class="title" href="/post/bb9b1e8e.html" title="Kubernetes（k8s）7、健康检查详解">Kubernetes（k8s）7、健康检查详解</a><time datetime="2023-01-05T08:40:00.000Z" title="发表于 2023-01-05 16:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）6、kube-proxy、Service详解"/></a><div class="content"><a class="title" href="/post/9f7e260b.html" title="Kubernetes（k8s）6、kube-proxy、Service详解">Kubernetes（k8s）6、kube-proxy、Service详解</a><time datetime="2023-01-05T07:40:00.000Z" title="发表于 2023-01-05 15:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）5、工作负载-Deployment"/></a><div class="content"><a class="title" href="/post/c2d6c004.html" title="Kubernetes（k8s）5、工作负载-Deployment">Kubernetes（k8s）5、工作负载-Deployment</a><time datetime="2023-01-05T06:40:00.000Z" title="发表于 2023-01-05 14:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）4、工作负载"/></a><div class="content"><a class="title" href="/post/c56c5900.html" title="Kubernetes（k8s）4、工作负载">Kubernetes（k8s）4、工作负载</a><time datetime="2023-01-05T05:40:00.000Z" title="发表于 2023-01-05 13:40:00">2023-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://res.yongwang.lu/img/k8s_card.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Kubernetes（k8s）3、Pod详解"/></a><div class="content"><a class="title" href="/post/3664a83f.html" title="Kubernetes（k8s）3、Pod详解">Kubernetes（k8s）3、Pod详解</a><time datetime="2023-01-05T04:40:00.000Z" title="发表于 2023-01-05 12:40:00">2023-01-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://kubernetes.io/images/nav_logo2.svg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023  <i id="heartbeat" class="fa fas fa-heartbeat"></i> L丶lulu</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="2929951612" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="false" muted></div><canvas id="universe"></canvas><script defer src="/js/universe.js"/><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></body></html>
