@@ -14,8 +14,8 @@ https://blog.yongwang.lu/categories/index.html
 https://blog.yongwang.lu/tags/index.html
 https://blog.yongwang.lu/
 https://blog.yongwang.lu/tags/containerd/
-https://blog.yongwang.lu/tags/alive/
 https://blog.yongwang.lu/tags/kubernetes/
+https://blog.yongwang.lu/tags/alive/
 https://blog.yongwang.lu/categories/containerd/
-https://blog.yongwang.lu/categories/alive/
 https://blog.yongwang.lu/categories/kubernetes/
+https://blog.yongwang.lu/categories/alive/
