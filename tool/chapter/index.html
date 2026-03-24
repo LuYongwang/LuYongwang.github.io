@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>L丶lulu‘s Blog | L丶lulu‘s Blog</title><meta name="author" content="L丶lulu"><meta name="copyright" content="L丶lulu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="                 小说Txt分章工具   注意：仅供学习参考@L lulu      文本拆章小工具                                                                                       ..."><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://blog.yongwang.lu/tool/chapter/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?2a2af082865b04778f6960717eb1510b";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'L丶lulu‘s Blog',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><style>@font-face{font-family:tzy;src:url(https://fastly.jsdelivr.net/gh/tzy13755126023/BLOG_SOURCE/font/ZhuZiAWan.woff2);font-display:swap}.gitcalendar,body{font-family:tzy!important}.categoryBar-list{max-height:400px}.clock-row{overflow:hidden;text-overflow:ellipsis}#page-header,#web_bg{-webkit-animation:imgblur 2s 1 ease-in-out;animation:imgblur 2s 1 ease-in-out}@keyframes imgblur{0%{filter:blur(5px)}100%{filter:blur(0)}}@-webkit-keyframes imgblur{0%{-webkit-filter:blur(5px)}100%{-webkit-filter:blur(0)}}.table-wrap img{margin:.6rem auto .1rem!important}.site-card-group img{margin:0 auto .1rem!important}.site-card-group .info a img{margin-right:10px!important}[data-theme=dark] .site-card-group .site-card .info .title{color:#f0f0f0!important}[data-theme=dark] .site-card-group .site-card .info .desc{color:rgba(255,255,255,.7)!important}.site-card-group .info .desc{margin-top:4px!important}figure.highlight pre .addition{color:#00bf03!important}</style><link rel="stylesheet" href="/css/universe.css"><meta name="generator" content="Hexo 8.1.1"><link rel="alternate" href="/atom.xml" title="L丶lulu‘s Blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(https://bu.dusays.com/2022/05/03/627010707b598.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">L丶lulu‘s Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標簽</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title"></h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/layui/2.6.8/css/layui.min.css" type="text/css"
+          rel="stylesheet"/>
+    <title>小说Txt分章工具</title>
+</head>
+<body>
+<blockquote class="layui-elem-quote">注意：仅供学习参考<span style="color:red">@L lulu</span></blockquote>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 2rem;">
+    <legend>文本拆章小工具</legend>
+</fieldset>
+<div class="layui-row">
+    <div class="layui-col-xs5" style="height: 100%;border-right: #0c0c0c solid 1px">
+        <!--        <blockquote class="layui-elem-quote">操作区</blockquote>-->
+        <div class="layui-form layui-col-xs11" style="margin-top: 0.5rem">
+            <div class="layui-form-item">
+                <div class="layui-upload-drag" style="margin-left: 18%" id="upload_txt">
+                    <i class="layui-icon"></i>
+                    <p>点击上传，或将文件拖拽到此处</p>
+                    <div id="uploadDemoView">
+                        <p id="prev"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">切割方式</label>
+                <div class="layui-input-inline">
+                    <select name="modules" lay-verify="required" lay-search="">
+                        <option value="">请选择</option>
+                        <option value="1">第xxx[章/回/节/篇]</option>
+                        <!--                        <option value="2">第xxx[章/回/节/篇] 节目名</option>-->
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">需要片头</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="switch" lay-skin="switch">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">片头内容</label>
+                <div class="layui-input-block">
+                    <textarea name="rule" placeholder="请输入内容：欢迎收听" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" οnsubmit="return false" class="layui-btn" lay-submit="" lay-filter="demo1">
+                        预览
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-xs7">
+        <blockquote class="layui-elem-quote">预览区
+            <button class="layui-btn layui-btn-sm" id="save_chapter">保存章节</button>
+        </blockquote>
+        <div>
+            <p>共<span style="color: red" id="count">-</span>章</p>
+        </div>
+        <div class="load">
+            <div class="layui-col-xs1"></div>
+            <div class="layui-col-xs10" id="load_text"
+                 style="width: 100%;height: 590px;display:block; overflow-y: scroll;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- You can also require other files to run in this process -->
+<script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/layui/2.6.8/layui.min.js"></script>
+<script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/FileSaver.js/2014-08-29/FileSaver.min.js"></script>
+<script>
+    String.prototype.fromBase64 = function () {
+        //base64 转字符串，反过来即可
+        let code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        let str = this, res = '', binaryStr = '';
+        var tail = 0;//如果有=号则处理
+        for (let i = 0, max = str.length; i < max; i++) {
+            if (str[i] == '=') {
+                tail++;
+            } else {
+                let char = str[i], index = code.indexOf(char);
+                //每个字符6位
+                let temp = index.toString(2);
+                binaryStr += new Array(7 - temp.length).join('0') + temp;
+            }
+        }
+        //如果有=号，则需要重新处理下字符串
+        binaryStr = binaryStr.substr(0, binaryStr.length - tail * 2);
+        //split
+        for (let i = 0, max = binaryStr.length; i < max; i += 8) {
+            let temp = binaryStr.substr(i, 8);
+            if (temp.length > 0) {
+                let index = parseInt(temp, 2);
+                let char = String.fromCodePoint(Math.abs(index));
+                res += char;
+            }
+        }
+        return res;
+    }
+
+    layui.use(['upload', 'element', 'layer'], function () {
+        const $ = layui.jquery
+            , upload = layui.upload
+            , form = layui.form
+            , layer = layui.layer;
+
+        let tmp_file_text = "";
+        let tmp_file_spilt_array = [];
+        let tmp_context_data = []
+        let tme_file_name = "小说";
+
+        $("#save_chapter").click(function () {
+            if (tmp_context_data.length == 0) {
+                layer.msg("请预览后查看")
+                return;
+            }
+            var zip = new JSZip();
+            // zip.folder("nested").file("hello.txt", "Hello World\n");
+
+            for (let item of tmp_context_data) {
+                //
+                // zip.file("hello.txt", "Hello World\n");
+                zip.file(item['name'] + ".txt", item['context'])
+            }
+            zip.generateAsync({type: "blob"}).then(function (content) {
+                // see FileSaver.js
+                saveAs(content, tme_file_name + ".zip");
+            });
+
+        })
+
+        function render_text(config) {
+            let context_html = "";
+            $("#count").text(tmp_file_spilt_array.length);
+            tmp_context_data = []
+            for (const idx in tmp_file_spilt_array) {
+                let start = config['switch'] === 'on';
+
+                let name = (idx == 0) ? "片头" : ("第" + idx + "章 " + (tmp_file_spilt_array[idx].split("\n")[0] + "").split("=").join(""))
+
+                let tmp_content_array = tmp_file_spilt_array[idx].split("\r\n").join("\n").split("\n");
+                tmp_content_array[0] = name;
+
+                let context = (start ? config['rule'] || "" : "") + tmp_content_array.join("\n");
+
+
+                context_html += `<div class='layui-row'>
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend>${name}</legend>
+                        </fieldset>
+                        <p class="layui-textarea">${context}</p>
+                    </div>`;
+                tmp_context_data.push({
+                    "name": name.trim(),
+                    "context": context
+                })
+            }
+            $("#load_text").html(context_html)
+        }
+
+
+        let rexObj = {
+            "rule_1": /.*第+[零〇一二三四五六七八九十百千万a-zA-Z0-9]+[章节卷集部篇回]/,
+            // "rule_2": /.+第+[零〇一二三四五六七八九十百千万a-zA-Z0-9]+[章节卷集部篇回]\n/
+        }
+
+        // var data1 = form.val("formTest");
+        form.on('submit(demo1)', function (data) {
+            if (!tmp_file_text) {
+                layer.msg("请上传内容")
+                return false;
+            }
+            let config = data.field || {};
+
+            // 分词正则获取
+            let regrule = rexObj["rule_" + config['modules']]
+            if (!regrule) {
+                layer.msg("请选择规则")
+                return false;
+            }
+            tmp_file_spilt_array = tmp_file_text.split(regrule)
+            render_text(config)
+            return false;
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#upload_txt'
+            , accept: 'file'
+            , exts: 'text|txt'
+            , auto: false
+            , choose: function (obj) {
+                layer.msg('上传成功');
+                obj.preview(function (index, file, result) {
+                    console.log(file); //得到文件对象
+                    // tmp_file_text = result.replace("data:text/plain;base64,","").fromBase64();
+                    $("#prev").text("文件名：" + (file.name) + "大小:" + parseFloat((file.size) / 1024 / 1024).toFixed(2) + "MB")
+                    tme_file_name = file.name.split(".")[0] + "分章"
+                    var reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = function () {
+                        if (reader.result) {
+                            //显示文件内容
+                            tmp_file_text = reader.result;
+                            // console.log(tmp_file_text)
+                        }
+                    }
+                });
+
+            }
+        });
+
+    });
+</script>
+</body>
+</html></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avter.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">L丶lulu</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LuYongwang"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/luYongwang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:yongwang.lu@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">孩子你很幼稚,真的很幼稚~</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/df9e501d.html" title="博客重启 - AI时代的写作助手">博客重启 - AI时代的写作助手</a><time datetime="2026-03-24T11:31:00.000Z" title="发表于 2026-03-24 19:31:00">2026-03-24</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E9%9A%8F%E7%AC%94/"><span class="card-category-list-name">随笔</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/AI/" style="font-size: 1.1em; color: #999">AI</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 1.1em; color: #999">随笔</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/03/">
+            <span class="card-archive-list-date">
+              三月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-03-24T11:35:50.316Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://bu.dusays.com/2022/05/03/627010707b598.webp);"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2026  <i id="heartbeat" class="fa fas fa-heartbeat"></i> L丶lulu<br/><a href="https://icp.gov.moe/?keyword=20250097" target="_blank">萌ICP备20250097号</a><a href="https://icp.n3v.cn/beian/ICP-2025030250.html" title="易AIA盟2025030250号" target="_blank"><img style="width:20px;height:20px;" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://icp.n3v.cn/static/picture/icplogoi.png">易AIA盟2025030250号</a></div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="2929951612" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="false" muted></div><canvas id="universe"></canvas><script defer src="/js/universe.js"/><a href="https://icp.gov.moe/?keyword=20250097" target="_blank">萌ICP备20250097号</a><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      const usePjax = true
+      true 
+        ? (usePjax ? pjax.loadUrl('/404.html') : window.location.href = '/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})()</script></div></body></html>
