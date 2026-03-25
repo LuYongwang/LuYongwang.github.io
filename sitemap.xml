@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://blog.yongwang.lu/post/20260325-dc8d87.html</loc>
+    
+    <lastmod>2026-03-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://blog.yongwang.lu/post/20260325-71aebf.html</loc>
     
     <lastmod>2026-03-25</lastmod>
@@ -195,6 +204,13 @@
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Skill/</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.yongwang.lu/tags/MCP/</loc>
     <lastmod>2026-03-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
