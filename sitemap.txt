@@ -1,3 +1,4 @@
+https://blog.yongwang.lu/post/20260331-phbi.html
 https://blog.yongwang.lu/post/20260330-r38.html
 https://blog.yongwang.lu/post/20260328-D63C00.html
 https://blog.yongwang.lu/post/20260327-iigbew.html
@@ -38,6 +39,8 @@ https://blog.yongwang.lu/tags/Agent/
 https://blog.yongwang.lu/tags/LLM/
 https://blog.yongwang.lu/tags/Python/
 https://blog.yongwang.lu/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/
+https://blog.yongwang.lu/tags/Harness/
+https://blog.yongwang.lu/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/
 https://blog.yongwang.lu/categories/%E9%9A%8F%E7%AC%94/
 https://blog.yongwang.lu/categories/AI/
 https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF/

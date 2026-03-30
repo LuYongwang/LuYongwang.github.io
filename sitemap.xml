@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://blog.yongwang.lu/post/20260331-phbi.html</loc>
+    
+    <lastmod>2026-03-30</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://blog.yongwang.lu/post/20260330-r38.html</loc>
     
     <lastmod>2026-03-30</lastmod>
@@ -314,6 +323,20 @@
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.yongwang.lu/tags/Harness/</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.yongwang.lu/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
