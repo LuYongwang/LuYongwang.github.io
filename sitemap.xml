@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://blog.yongwang.lu/post/20260330-r38.html</loc>
+    
+    <lastmod>2026-03-30</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://blog.yongwang.lu/post/20260328-D63C00.html</loc>
     
     <lastmod>2026-03-28</lastmod>
@@ -157,7 +166,7 @@
 
   <url>
     <loc>https://blog.yongwang.lu/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -165,133 +174,147 @@
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E9%9A%8F%E7%AC%94/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/AI/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E8%BD%AC%E8%BD%BD/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Go/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E7%BB%84%E4%BB%B6%E7%BC%96%E6%8E%92/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Skills/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Claude/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E6%95%99%E7%A8%8B/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/OpenClaw/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E9%A3%9E%E4%B9%A6/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E5%A4%9AAgent/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Skill/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/MCP/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/HTTP%E5%AE%A2%E6%88%B7%E7%AB%AF/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/RESTful-API/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/%E6%9E%B6%E6%9E%84/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/Agent/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/tags/LLM/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.yongwang.lu/tags/Python/</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.yongwang.lu/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/</loc>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -300,49 +323,49 @@
   
   <url>
     <loc>https://blog.yongwang.lu/categories/%E9%9A%8F%E7%AC%94/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/AI/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF/%E5%90%8E%E7%AB%AF-Go/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/AI-Skill/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF-Go/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.yongwang.lu/categories/AI/%E5%B7%A5%E5%85%B7-%E6%95%88%E7%8E%87/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
