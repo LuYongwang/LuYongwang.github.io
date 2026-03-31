@@ -1,6 +1,6 @@
+https://blog.yongwang.lu/post/20260330-r38k9p.html
 https://blog.yongwang.lu/post/20260331-phbi.html
-https://blog.yongwang.lu/post/20260330-r38.html
-https://blog.yongwang.lu/post/20260328-D63C00.html
+https://blog.yongwang.lu/post/20260328-d63c00.html
 https://blog.yongwang.lu/post/20260327-iigbew.html
 https://blog.yongwang.lu/post/20260324-c5f7a2.html
 https://blog.yongwang.lu/post/20260326-w8l3j3.html
@@ -11,7 +11,6 @@ https://blog.yongwang.lu/post/20260325-cef213.html
 https://blog.yongwang.lu/post/20260325-b6b88c.html
 https://blog.yongwang.lu/post/20260324-a7b3c9.html
 https://blog.yongwang.lu/post/20260324-b8d2e1.html
-https://blog.yongwang.lu/post/20260324-c5f7a2.html
 https://blog.yongwang.lu/link/index.html
 https://blog.yongwang.lu/tool/index.html
 https://blog.yongwang.lu/tool/chapter/index.html
@@ -43,8 +42,6 @@ https://blog.yongwang.lu/tags/Harness/
 https://blog.yongwang.lu/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/
 https://blog.yongwang.lu/categories/%E9%9A%8F%E7%AC%94/
 https://blog.yongwang.lu/categories/AI/
-https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF/
-https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF/%E5%90%8E%E7%AB%AF-Go/
 https://blog.yongwang.lu/categories/AI-Skill/
 https://blog.yongwang.lu/categories/%E5%90%8E%E7%AB%AF-Go/
 https://blog.yongwang.lu/categories/AI/%E5%B7%A5%E5%85%B7-%E6%95%88%E7%8E%87/
