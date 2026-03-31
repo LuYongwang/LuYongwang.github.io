@@ -41,8 +41,6 @@ https://blog.yongwang.lu/tags/Python/
 https://blog.yongwang.lu/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/
 https://blog.yongwang.lu/tags/Harness/
 https://blog.yongwang.lu/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/
-https://blog.yongwang.lu/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/
-https://blog.yongwang.lu/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/
 https://blog.yongwang.lu/tags/Chrome/
 https://blog.yongwang.lu/tags/DevTools/
 https://blog.yongwang.lu/categories/%E9%9A%8F%E7%AC%94/
