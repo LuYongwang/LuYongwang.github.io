@@ -1,3 +1,4 @@
+https://blog.yongwang.lu/post/20260401-jsynvj.html
 https://blog.yongwang.lu/post/20260401-m9p7x2.html
 https://blog.yongwang.lu/post/20260331-phbi.html
 https://blog.yongwang.lu/post/20260330-r38k9p.html
@@ -43,6 +44,9 @@ https://blog.yongwang.lu/tags/Harness/
 https://blog.yongwang.lu/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/
 https://blog.yongwang.lu/tags/Chrome/
 https://blog.yongwang.lu/tags/DevTools/
+https://blog.yongwang.lu/tags/Harness-Engineering/
+https://blog.yongwang.lu/tags/AI%E7%BC%96%E7%A8%8B/
+https://blog.yongwang.lu/tags/OpenAI/
 https://blog.yongwang.lu/categories/%E9%9A%8F%E7%AC%94/
 https://blog.yongwang.lu/categories/AI/
 https://blog.yongwang.lu/categories/AI-Skill/
